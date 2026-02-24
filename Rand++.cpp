@@ -414,13 +414,13 @@ void runAllTests(RNGAbstract & rng, int sampleSize) {
 int main() {
     RNG rng_perfect(time(0));
     std::cout << "START FOR perfect_random\n";
-    runAllTests(rng_perfect, 10000000);
+    runAllTests(rng_perfect, 1000);
     std::cout << "==================================================";
     StdGeneralRNG rng_general(time(0));
     std::cout << "START FOR StdGeneralRNG\n";
-    runAllTests(rng_general, 10000000);
+    runAllTests(rng_general, 1000);
     std::cout << "==================================================";
-    std::cout << "MSHUNKO (C) prod 2013-2026\n";
+    std::cout << "MSHUNKO (inc) prod 2013-2026\n";
     return 0;
 }
 

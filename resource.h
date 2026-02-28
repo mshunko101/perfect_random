@@ -20,14 +20,23 @@
 #define IDC_SERIE_DATATYPE2             1014
 #define IDC_RANDOMIZER                  1014
 #define IDC_RADIO1                      1015
+#define IDC_TYPE_INTEGER                1015
 #define IDC_RADIO2                      1016
+#define IDC_TYPE_DOUBLE                 1016
 #define IDC_RADIO3                      1017
+#define IDC_TYPE_TEXT                   1017
 #define IDC_RADIO4                      1018
+#define IDC_TYPE_BINARY                 1018
 #define IDC_RADIO5                      1019
+#define IDC_TYPE_BYTE                   1019
 #define IDC_RADIO6                      1020
+#define IDC_TYPE_WORD                   1020
 #define IDC_RADIO7                      1021
+#define IDC_TYPE_DWORD                  1021
 #define IDC_RADIO8                      1022
+#define IDC_TYPE_STD                    1022
 #define IDC_RADIO9                      1023
+#define IDC_TYPE_MSHUNKO                1023
 
 // Next default values for new objects
 // 

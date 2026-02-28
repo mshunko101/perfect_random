@@ -68,6 +68,7 @@ END_MESSAGE_MAP()
 
 CRandDlg::CRandDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_RAND_DIALOG, pParent)
+    , m_serie_count(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -75,6 +76,20 @@ CRandDlg::CRandDlg(CWnd* pParent /*=nullptr*/)
 void CRandDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);
+    DDX_Text(pDX, IDC_SERIES_COUNT, m_serie_count);
+    DDX_Control(pDX, IDC_TYPE_INTEGER, m_type_integer);
+    DDX_Control(pDX, IDC_TYPE_DOUBLE, m_type_double);
+    DDX_Control(pDX, IDC_TYPE_TEXT, m_type_text);
+    DDX_Control(pDX, IDC_TYPE_BINARY, m_type_binary);
+    DDX_Control(pDX, IDC_SERIE_MIN, m_serie_min);
+    DDX_Control(pDX, IDC_SERIE_MAX, m_serie_max);
+    DDX_Control(pDX, IDC_TYPE_BYTE, m_type_byte);
+    DDX_Control(pDX, IDC_TYPE_WORD, m_type_word);
+    DDX_Control(pDX, IDC_TYPE_DWORD, m_type_dword);
+    DDX_Control(pDX, IDC_SERIE_FILENAME, m_serie_filename);
+    DDX_Control(pDX, IDC_TYPE_STD, m_type_std);
+    DDX_Control(pDX, IDC_TYPE_MSHUNKO, m_type_mshunko);
+    DDX_Control(pDX, IDC_PROGRESS_BAR, m_progress_bar);
 }
 
 BEGIN_MESSAGE_MAP(CRandDlg, CDialogEx)
@@ -119,36 +134,7 @@ BOOL CRandDlg::OnInitDialog()
 	//  если главное окно приложения не является диалоговым
 	SetIcon(m_hIcon, TRUE);			// Крупный значок
 	SetIcon(m_hIcon, FALSE);		// Мелкий значок
-    /*
-	m_serie_type.AddString(_T("int"));
-	m_serie_type.AddString(_T("double"));
-
-	m_serie_format.AddString(_T("txt"));
-	m_serie_format.AddString(_T("bin"));
-
-	m_serie_datatype.AddString(_T("byte"));
-	m_serie_datatype.AddString(_T("word"));
-	m_serie_datatype.AddString(_T("dword"));
-	// TODO: добавьте дополнительную инициализацию
-
-    
-    m_serie_count.SetWindowTextW(_T("1000000"));
-    m_serie_type.SelectString(0, _T("int"));
-    m_serie_format.SelectString(0, _T("bin"));
-    m_serie_min.SetWindowTextW(_T("1"));
-    m_serie_max.SetWindowTextW(_T("4294967295"));
-    m_serie_datatype.SelectString(0, _T("dword"));
-    m_serie_filename.SetWindowTextW(_T("random.bin"));
-
-    m_randomizer.AddString(_T("std"));
-    m_randomizer.AddString(_T("X"));
-
-    CProgressCtrl m_progress_bar;
-    */
-
-    // Инициализация прогресс‑бара
-    //m_progress_bar.SetRange(0, 100);  // диапазон 0–100 %
-    //m_progress_bar.SetPos(0);           // начальная позиция
+   
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
 }
 
@@ -251,31 +237,46 @@ UINT MyComplexThread(LPVOID pParam)
 {
     CRandDlg* pDlg = (CRandDlg*)pParam;
     CString buffer;
-
     // Извлекаем данные из элементов управления
-    pDlg->m_serie_count.GetWindowText(buffer);
-    unsigned long serie_count = _ttoi64(buffer);
+    unsigned long serie_count = _ttoi64(pDlg->m_serie_count);
 
-    CString serie_type;
-    pDlg->m_serie_type.GetWindowTextW(serie_type);
+    CString serie_format = pDlg->m_type_text.GetCheck() > 0 ? _T("txt") : _T("bin");
 
-    CString serie_format;
-    pDlg->m_serie_format.GetWindowTextW(serie_format);
+    CString serie_type = pDlg->m_type_integer.GetCheck() > 0 ? _T("int") : _T("double");
 
-    pDlg->m_serie_min.GetWindowText(buffer);
-    double serie_min = _tstof(buffer);
+    pDlg->m_serie_min.GetWindowTextW(buffer);
+    size_t serie_min = _tstoi64(buffer);
 
     pDlg->m_serie_max.GetWindowText(buffer);
-    double serie_max = _tstof(buffer);
+    size_t serie_max = _tstoi64(buffer);
 
     CString serie_datatype;
-    pDlg->m_serie_datatype.GetWindowTextW(serie_datatype);
+    if(pDlg->m_type_byte.GetCheck())
+    {
+        serie_datatype = _T("byte");
+    }
+    if (pDlg->m_type_word.GetCheck())
+    {
+        serie_datatype = _T("word");
+    }
+    if (pDlg->m_type_dword.GetCheck())
+    {
+        serie_datatype = _T("dword");
+    }
 
     CString serie_filename_tmp;
     pDlg->m_serie_filename.GetWindowTextW(serie_filename_tmp);
 
     CString randomizer;
-    pDlg->m_randomizer.GetWindowTextW(randomizer);
+    if (pDlg->m_type_std.GetCheck())
+    {
+        randomizer = _T("std");
+    }
+    if (pDlg->m_type_mshunko.GetCheck())
+    {
+        randomizer = _T("mshunko");
+    }
+
 
     CString executableDir = GetExecutableDirectory();
 

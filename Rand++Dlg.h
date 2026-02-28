@@ -41,14 +41,19 @@ protected:
 	afx_msg LRESULT OnTaskError(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 public:
-	CEdit m_serie_count;
-	CComboBox m_serie_type;
-	CComboBox m_serie_format;
+	afx_msg BOOL OnHelpInfo(HELPINFO* pHelpInfo);
+	CString m_serie_count;
+	CButton m_type_integer;
+	CButton m_type_double;
+	CButton m_type_text;
+	CButton m_type_binary;
 	CEdit m_serie_min;
 	CEdit m_serie_max;
-	CComboBox m_serie_datatype;
+	CButton m_type_byte;
+	CButton m_type_word;
+	CButton m_type_dword;
 	CEdit m_serie_filename;
+	CButton m_type_std;
+	CButton m_type_mshunko;
 	CProgressCtrl m_progress_bar;
-	CComboBox m_randomizer;
-	afx_msg BOOL OnHelpInfo(HELPINFO* pHelpInfo);
 };

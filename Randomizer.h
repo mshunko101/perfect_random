@@ -93,9 +93,9 @@ private:
 	AssociativityCore assocCore;
 	MeanCore meanCore;
 	FantasyCore fantasyCore;
-
+	double m_prev;
 public:
-	RNG(unsigned int seed) : assocCore(seed), meanCore(), fantasyCore() {}
+	RNG(unsigned int seed) : assocCore(seed), meanCore(), fantasyCore(), m_prev(0.00){}
 
 	void handle_collision(unsigned int a, unsigned int b) {
 		fantasyCore.add_collision(a, b);
@@ -104,6 +104,12 @@ public:
 	double generate() override {
 		unsigned int base = assocCore.generate();
 		double mean_adjusted = meanCore.adjust(base);
-		return fantasyCore.apply_fantasy(mean_adjusted);
+		double current = fantasyCore.apply_fantasy(mean_adjusted);
+
+		uint32_t result0 = static_cast<uint32_t>(m_prev * UINT32_MAX);
+		uint32_t result1 = static_cast<uint32_t>(current * UINT32_MAX);
+		//handle_collision(result0, result1);
+		m_prev = current;
+		return current;
 	}
 };

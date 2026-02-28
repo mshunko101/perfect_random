@@ -470,6 +470,7 @@ void CRandDlg::OnBnClickedTypeDouble()
     m_type_byte.EnableWindow(false);
     m_type_word.EnableWindow(false);
     m_type_dword.EnableWindow(true);
+    m_type_dword.SetCheck(1);
 }
 
 void CRandDlg::OnBnClickedTypeInteger()

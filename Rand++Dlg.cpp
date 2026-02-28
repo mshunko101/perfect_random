@@ -101,6 +101,8 @@ BEGIN_MESSAGE_MAP(CRandDlg, CDialogEx)
     ON_MESSAGE(WM_TASK_COMPLETE, &CRandDlg::OnTaskComplete)
     ON_MESSAGE(WM_TASK_ERROR, &CRandDlg::OnTaskError)
     ON_WM_HELPINFO()
+    ON_BN_CLICKED(IDC_TYPE_DOUBLE, &CRandDlg::OnBnClickedTypeDouble)
+    ON_BN_CLICKED(IDC_TYPE_INTEGER, &CRandDlg::OnBnClickedTypeInteger)
 END_MESSAGE_MAP()
 
 
@@ -461,4 +463,18 @@ BOOL CRandDlg::OnHelpInfo(HELPINFO* pHelpInfo)
     CAboutDlg dlg;
     dlg.DoModal();
     return TRUE;
+}
+
+void CRandDlg::OnBnClickedTypeDouble()
+{
+    m_type_byte.EnableWindow(false);
+    m_type_word.EnableWindow(false);
+    m_type_dword.EnableWindow(true);
+}
+
+void CRandDlg::OnBnClickedTypeInteger()
+{
+    m_type_byte.EnableWindow(true);
+    m_type_word.EnableWindow(true);
+    m_type_dword.EnableWindow(true);
 }

@@ -56,4 +56,6 @@ public:
 	CButton m_type_std;
 	CButton m_type_mshunko;
 	CProgressCtrl m_progress_bar;
+	afx_msg void OnBnClickedTypeDouble();
+	afx_msg void OnBnClickedTypeInteger();
 };

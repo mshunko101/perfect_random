@@ -134,6 +134,7 @@ BOOL CRandDlg::OnInitDialog()
     m_serie_max.AddString(_T("256"));
     m_serie_max.AddString(_T("4294967296"));
     m_serie_max.SetWindowTextW(_T("0"));
+    m_serie_min.SetWindowTextW(_T("0"));
 	// Задает значок для этого диалогового окна.  Среда делает это автоматически,
 	//  если главное окно приложения не является диалоговым
 	SetIcon(m_hIcon, TRUE);			// Крупный значок

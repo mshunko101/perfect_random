@@ -42,7 +42,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg BOOL OnHelpInfo(HELPINFO* pHelpInfo);
-	CString m_serie_count;
+	CComboBox m_serie_count;
 	CButton m_type_integer;
 	CButton m_type_double;
 	CButton m_type_text;

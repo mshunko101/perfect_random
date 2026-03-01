@@ -68,7 +68,6 @@ END_MESSAGE_MAP()
 
 CRandDlg::CRandDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_RAND_DIALOG, pParent)
-    , m_serie_count(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -76,7 +75,7 @@ CRandDlg::CRandDlg(CWnd* pParent /*=nullptr*/)
 void CRandDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);
-    DDX_Text(pDX, IDC_SERIES_COUNT, m_serie_count);
+    DDX_Control(pDX, IDC_SERIES_COUNT, m_serie_count);
     DDX_Control(pDX, IDC_TYPE_INTEGER, m_type_integer);
     DDX_Control(pDX, IDC_TYPE_DOUBLE, m_type_double);
     DDX_Control(pDX, IDC_TYPE_TEXT, m_type_text);
@@ -131,6 +130,13 @@ BOOL CRandDlg::OnInitDialog()
 			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		}
 	}
+    m_serie_count.AddString(_T("10"));
+    m_serie_count.AddString(_T("100"));
+    m_serie_count.AddString(_T("1000"));
+    m_serie_count.AddString(_T("10000"));
+    m_serie_count.AddString(_T("100000"));
+    m_serie_count.AddString(_T("1000000"));
+    m_serie_count.AddString(_T("10000000"));
     m_serie_max.AddString(_T("256"));
     m_serie_max.AddString(_T("4294967296"));
     m_serie_max.SetWindowTextW(_T("0"));
@@ -242,8 +248,9 @@ UINT MyComplexThread(LPVOID pParam)
 {
     CRandDlg* pDlg = (CRandDlg*)pParam;
     CString buffer;
+    pDlg->m_serie_count.GetWindowTextW(buffer);
     // Извлекаем данные из элементов управления
-    unsigned long serie_count = _ttoi64(pDlg->m_serie_count);
+    unsigned long serie_count = _ttoi64(buffer);
 
     CString serie_format = pDlg->m_type_text.GetCheck() > 0 ? _T("txt") : _T("bin");
 

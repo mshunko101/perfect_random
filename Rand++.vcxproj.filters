@@ -71,6 +71,9 @@
     <Image Include="res\Rand++.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
+    <Image Include="Front_Row_35267.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
     <Image Include="..\..\..\Downloads\Front_Row_35267.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>

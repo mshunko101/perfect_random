@@ -48,7 +48,7 @@ public:
 	CButton m_type_text;
 	CButton m_type_binary;
 	CEdit m_serie_min;
-	CEdit m_serie_max;
+	CComboBox m_serie_max;
 	CButton m_type_byte;
 	CButton m_type_word;
 	CButton m_type_dword;
@@ -58,4 +58,5 @@ public:
 	CProgressCtrl m_progress_bar;
 	afx_msg void OnBnClickedTypeDouble();
 	afx_msg void OnBnClickedTypeInteger();
+	afx_msg void OnCbnSelchangeCombo1();
 };

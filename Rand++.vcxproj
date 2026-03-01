@@ -211,7 +211,6 @@
     <None Include="res\Rand.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\Downloads\Front_Row_35267.ico" />
     <Image Include="Front_Row_35267.ico" />
     <Image Include="res\Rand++.ico" />
   </ItemGroup>

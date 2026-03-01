@@ -95,7 +95,7 @@ private:
     FantasyCore fantasyCore;
     double m_prev;
     std::unordered_set<unsigned int> history;  // Буфер истории
-    const int MAX_RETRIES = 2;  // Максимальное число попыток перегенерации
+    const int MAX_RETRIES = 49;  // Максимальное число попыток перегенерации
 
 public:
     RNG(unsigned int seed) : assocCore(seed), meanCore(), fantasyCore(), m_prev(0.00) {}

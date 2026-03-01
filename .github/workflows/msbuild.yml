@@ -34,12 +34,22 @@ jobs:
     - name: Collect Artifacts
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        # Определяем путь к собранным файлам
-        $outputPath = "${{env.GITHUB_WORKSPACE}}\bin\${{env.BUILD_CONFIGURATION}}"
-        # Создаем директорию для артефактов, если её нет
-        New-Item -ItemType Directory -Force -Path artifacts
-        # Копируем необходимые файлы
-        Copy-Item -Path "$outputPath\*" -Destination "artifacts" -Recurse
+        $outputPath = "${{env.GITHUB_WORKSPACE}}\x64\${{env.BUILD_CONFIGURATION}}"
+        
+        if (Test-Path $outputPath) {
+            New-Item -ItemType Directory -Force -Path artifacts
+            
+            Write-Host "Копируем артефакты..."
+            
+            Copy-Item -Path "$outputPath\*.exe" -Destination "artifacts" -Recurse
+            Copy-Item -Path "$outputPath\*.dll" -Destination "artifacts" -Recurse
+            Copy-Item -Path "$outputPath\*.lib" -Destination "artifacts" -Recurse
+            
+            Write-Host "Артефакты успешно скопированы"
+        } else {
+            Write-Error "Выходная директория не найдена"
+        }
+
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4  # Обновленная версия

@@ -17,7 +17,7 @@
 
 # Стойкость perfect_random:
 
-Веду [исследования](docs/Счет-1.pdf), [детальки](docs/Счет-2.pdf) для проверки на [уязвимости](https://github.com/mshunko101/science/blob/main/GARCHAN/v18.md) прибудут 31.03.2026г.
+Веду [исследования](docs/Счет-2.pdf), [детальки](docs/Счет-1.pdf) для проверки на [уязвимости](https://github.com/mshunko101/science/blob/main/GARCHAN/v18.md) прибудут 31.03.2026г.
 
 
 

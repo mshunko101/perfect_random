@@ -34,7 +34,7 @@ jobs:
     - name: Collect Artifacts
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        $outputPath = "${{env.GITHUB_WORKSPACE}}\src\x64\${{env.BUILD_CONFIGURATION}}"
+        $outputPath = "${{env.GITHUB_WORKSPACE}}\Rand++\x64\${{env.BUILD_CONFIGURATION}}"
         
         if (Test-Path $outputPath) {
             New-Item -ItemType Directory -Force -Path artifacts

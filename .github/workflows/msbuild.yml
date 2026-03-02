@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  SOLUTION_FILE_PATH: ./src/Rand++.sln  # Укажите полное имя файла решения
+  SOLUTION_FILE_PATH: ./src/Rand++.sln
   BUILD_CONFIGURATION: Release
 
 permissions:
@@ -32,9 +32,9 @@ jobs:
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
 
     - name: Collect Artifacts
-      working-directory: ${{env.GITHUB_WORKSPACE}}/src  # Изменили рабочую директорию
+      working-directory: ${{env.GITHUB_WORKSPACE}}  # Исправлено на корневую директорию
       run: |
-        $outputPath = ".\x64\${{env.BUILD_CONFIGURATION}}"  # Добавлена закрывающая кавычка
+        $outputPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"  # Изменен путь
         Write-Host "Текущая директория: $(Get-Location)"
         Write-Host "Проверяем путь: $outputPath"
         Get-ChildItem $outputPath
@@ -57,5 +57,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
-        path: src/artifacts  # Указываем правильный путь к артефактам
+        path: artifacts  # Исправлено на относительный путь
         retention-days: 7

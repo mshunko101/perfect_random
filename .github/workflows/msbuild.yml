@@ -9,6 +9,7 @@ on:
 env:
   SOLUTION_FILE_PATH: ./src/Rand++.sln
   BUILD_CONFIGURATION: Release
+  ARTIFACTS_ZIP: artifacts/build-artifacts.zip
 
 permissions:
   contents: read
@@ -31,31 +32,31 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Collect Artifacts
-      working-directory: ${{env.GITHUB_WORKSPACE}}  # Исправлено на корневую директорию
+    - name: Create Artifacts Directory
       run: |
-        $outputPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"  # Изменен путь
-        Write-Host "Текущая директория: $(Get-Location)"
-        Write-Host "Проверяем путь: $outputPath"
-        Get-ChildItem $outputPath
+        New-Item -ItemType Directory -Force -Path artifacts
 
+    - name: Compress Build Output
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        $outputPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
+        
         if (Test-Path $outputPath) {
-            New-Item -ItemType Directory -Force -Path artifacts
-            
-            Write-Host "Копируем артефакты..."
-            
-            Copy-Item -Path "$outputPath\*.exe" -Destination "artifacts" -Recurse
-            Copy-Item -Path "$outputPath\*.dll" -Destination "artifacts" -Recurse
-            Copy-Item -Path "$outputPath\*.lib" -Destination "artifacts" -Recurse
-            
-            Write-Host "Артефакты успешно скопированы"
+            Write-Host "Создаем архив артефактов..."
+            Compress-Archive -Path "$outputPath\*" -DestinationPath ${{env.ARTIFACTS_ZIP}}
+            Write-Host "Архив создан: $(Get-ChildItem artifacts)"
         } else {
             Write-Error "Выходная директория не найдена"
         }
 
-    - name: Upload Artifacts
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: build-artifacts
-        path: ./artifacts  
+        name: build-artifacts-zip
+        path: ${{env.ARTIFACTS_ZIP}}
         retention-days: 7
+
+    - name: Cleanup (опционально)
+      if: always()
+      run: |
+        Remove-Item -Path artifacts -Recurse -Force

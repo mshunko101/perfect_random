@@ -34,7 +34,7 @@ jobs:
     - name: Collect Artifacts
       working-directory: ${{env.GITHUB_WORKSPACE}}/src  # Изменили рабочую директорию
       run: |
-        $outputPath = ".\x64\${{env.BUILD_CONFIGURATION}"
+        $outputPath = ".\x64\${{env.BUILD_CONFIGURATION}}"  # Добавлена закрывающая кавычка
         Write-Host "Текущая директория: $(Get-Location)"
         Write-Host "Проверяем путь: $outputPath"
         Get-ChildItem $outputPath

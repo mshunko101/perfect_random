@@ -57,5 +57,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
-        path: artifacts  # Исправлено на относительный путь
+        path: ./artifacts  
         retention-days: 7

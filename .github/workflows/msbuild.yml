@@ -1,62 +1,82 @@
-name: MSBuild with Artifacts
+name: MSBuild with Release
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+  release:
+    types: [created]
 
 env:
   SOLUTION_FILE_PATH: ./src/Rand++.sln
   BUILD_CONFIGURATION: Release
-  ARTIFACTS_ZIP: artifacts/build-artifacts.zip
+  ARTIFACTS_DIR: artifacts
+  ARTIFACTS_ZIP: ${{env.ARTIFACTS_DIR}}/build-artifacts.zip
 
 permissions:
-  contents: read
+  contents: write  # Нужны права на создание релизов
 
 jobs:
-  build:
+  build-and-release:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1
+
     - name: Restore NuGet packages
-      working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Build
-      working-directory: ${{env.GITHUB_WORKSPACE}}
+    - name: Build solution
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Create Artifacts Directory
+    - name: Create artifacts directory
       run: |
-        New-Item -ItemType Directory -Force -Path artifacts
+        New-Item -ItemType Directory -Force -Path ${{env.ARTIFACTS_DIR}}
 
-    - name: Compress Build Output
-      working-directory: ${{env.GITHUB_WORKSPACE}}
+    - name: Compress build output
       run: |
         $outputPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
         
         if (Test-Path $outputPath) {
-            Write-Host "Создаем архив артефактов..."
             Compress-Archive -Path "$outputPath\*" -DestinationPath ${{env.ARTIFACTS_ZIP}}
-            Write-Host "Архив создан: $(Get-ChildItem artifacts)"
         } else {
             Write-Error "Выходная директория не найдена"
         }
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN}}
       with:
-        name: build-artifacts-zip
-        path: ${{env.ARTIFACTS_ZIP}}
-        retention-days: 7
+        tag_name: v${{ github.run_number }}  # Или используйте семантическое версионирование
+        release_name: Release v${{ github.run_number }}
+        body: |
+          Сборка проекта Rand++
+          
+          **Версия:** v${{ github.run_number }}
+          **Дата сборки:** ${{ github.event.head_commit.timestamp }}
+          **Коммит:** ${{ github.sha }}
+        draft: false
+        prerelease: false
 
-    - name: Cleanup (опционально)
-      if: always()
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{env.ARTIFACTS_ZIP}}
+        asset_name: Rand++-v${{ github.run_number }}.zip
+        asset_content_type: application/zip
+
+    - name: Cleanup
       run: |
-        Remove-Item -Path artifacts -Recurse -Force
+        Remove-Item -Path ${{env.ARTIFACTS_DIR}} -Recurse -Force

@@ -11,7 +11,6 @@
 #define IDS_SERIE_TYPE                  104
 #define IDS_SERIE_FORMAT                105
 #define IDS_SERIE_DATATYPE              106
-#define IDS_STRING107                   107
 #define IDS_FILE_ERROR                  107
 #define IDR_MAINFRAME                   128
 #define IDC_SERIES_COUNT                1005

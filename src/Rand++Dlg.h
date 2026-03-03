@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include "Randomizer.h"
-#include "generator_std.h"
+
+//#include "rand_pure_c.h"
 #define WM_UPDATE_PROGRESS (WM_USER + 100)
 #define WM_TASK_COMPLETE (WM_USER + 101)
 #define WM_TASK_ERROR (WM_USER + 102)
@@ -59,4 +59,5 @@ public:
 	afx_msg void OnBnClickedTypeDouble();
 	afx_msg void OnBnClickedTypeInteger();
 	afx_msg void OnCbnSelchangeCombo1();
+	CButton m_type_pure_c;
 };

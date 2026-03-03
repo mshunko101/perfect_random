@@ -188,12 +188,12 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rand++.h" />
     <ClInclude Include="Rand++Dlg.h" />
-    <ClInclude Include="Randomizer.h" />
+    <ClInclude Include="randpp.h" />
+    <ClInclude Include="randpp_pure_c.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="generator_std.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -202,7 +202,6 @@
     </ClCompile>
     <ClCompile Include="Rand++.cpp" />
     <ClCompile Include="Rand++Dlg.cpp" />
-    <ClCompile Include="Randomizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Rand.rc" />

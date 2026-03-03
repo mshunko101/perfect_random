@@ -29,11 +29,6 @@
 #include <afxcontrolbars.h>     // поддержка MFC для лент и панелей управления
 
 
-class  RNGAbstract
-{
-public:
-	virtual double generate() = 0;;
-};
 
 
 

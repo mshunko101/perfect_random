@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+// MSHUNKO 2026
 #include <bitset>
 #include <cstdlib>
 #include <string>

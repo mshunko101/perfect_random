@@ -6,6 +6,13 @@
 #define IDD_ABOUTBOX                    100
 #define IDS_ABOUTBOX                    101
 #define IDD_RAND_DIALOG                 102
+#define IDS_MIN_SERIE_COUNT             102
+#define IDS_MIN_MAX_CONDITION           103
+#define IDS_SERIE_TYPE                  104
+#define IDS_SERIE_FORMAT                105
+#define IDS_SERIE_DATATYPE              106
+#define IDS_STRING107                   107
+#define IDS_FILE_ERROR                  107
 #define IDR_MAINFRAME                   128
 #define IDC_SERIES_COUNT                1005
 #define IDC_SERIE_TYPE                  1006
@@ -38,6 +45,7 @@
 #define IDC_RADIO9                      1023
 #define IDC_TYPE_MSHUNKO                1023
 #define IDC_STATIC_TYPE_DATA            1024
+#define IDC_TYPE_PUREC                  1025
 #define IDC_COMBO2                      1026
 
 // Next default values for new objects

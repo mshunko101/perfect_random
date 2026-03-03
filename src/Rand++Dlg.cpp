@@ -6,6 +6,8 @@
 #include "framework.h"
 #include "Rand++.h"
 #include "Rand++Dlg.h"
+#include "randpp.h"
+#include "generator_std.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -89,6 +91,7 @@ void CRandDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_TYPE_STD, m_type_std);
     DDX_Control(pDX, IDC_TYPE_MSHUNKO, m_type_mshunko);
     DDX_Control(pDX, IDC_PROGRESS_BAR, m_progress_bar);
+    DDX_Control(pDX, IDC_TYPE_PUREC, m_type_pure_c);
 }
 
 BEGIN_MESSAGE_MAP(CRandDlg, CDialogEx)
@@ -137,6 +140,8 @@ BOOL CRandDlg::OnInitDialog()
     m_serie_count.AddString(_T("100000"));
     m_serie_count.AddString(_T("1000000"));
     m_serie_count.AddString(_T("10000000"));
+    m_serie_count.AddString(_T("100000000"));
+    m_serie_count.AddString(_T("1000000000"));
     m_serie_max.AddString(_T("256"));
     m_serie_max.AddString(_T("4294967296"));
     m_serie_max.SetWindowTextW(_T("0"));
@@ -288,6 +293,10 @@ UINT MyComplexThread(LPVOID pParam)
     {
         randomizer = _T("mshunko");
     }
+    if (pDlg->m_type_pure_c.GetCheck())
+    {
+        randomizer = _T("pure_c");
+    }
 
 
     CString executableDir = GetExecutableDirectory();
@@ -305,24 +314,24 @@ UINT MyComplexThread(LPVOID pParam)
 
         // Валидация входных данных
         if (serie_count <= 0)
-            throw std::invalid_argument("Количество чисел должно быть больше 0");
+            throw new CInvalidArgException(true, IDS_MIN_SERIE_COUNT);
 
         if (serie_min >= serie_max)
-            throw std::invalid_argument("min должен быть меньше max");
+            throw new CInvalidArgException(true, IDS_MIN_MAX_CONDITION);
 
         // Парсинг типа данных
         bool output_double = false;
         if (serie_type == L"double")
             output_double = true;
         else if (serie_type != L"int")
-            throw std::invalid_argument("Тип должен быть 'double' или 'int'");
+            throw new CInvalidArgException(true, IDS_SERIE_TYPE);
 
         // Парсинг формата вывода
         bool binary_format = false;
         if (serie_format == L"bin")
             binary_format = true;
         else if (serie_format != L"txt")
-            throw std::invalid_argument("Формат должен быть 'txt' или 'bin'");
+        throw new CInvalidArgException(true, IDS_SERIE_FORMAT);
 
         // Парсинг размера числа
         enum class NumberSize { Byte, Word, DWord } number_size;
@@ -333,18 +342,23 @@ UINT MyComplexThread(LPVOID pParam)
         else if (serie_datatype == L"dword")
             number_size = NumberSize::DWord;
         else
-            throw std::invalid_argument("Размер должен быть 'byte', 'word' или 'dword'");
+            throw new CInvalidArgException(true, IDS_SERIE_DATATYPE);
 
         // Преобразуем CString в std::string для работы с STL 
 
         // Инициализация генератора случайных чисел
 
         StdGeneralRNG rg;
+        RandPP_PureC rps;
         RNG rng_perfect_var(static_cast<unsigned int>(time(nullptr)));
         RNGAbstract* rng_perfect = &rng_perfect_var;
         if (randomizer == _T("std"))
         {
             rng_perfect = &rg;
+        }
+        else if (randomizer == _T("pure_c"))
+        {
+            rng_perfect = &rps;
         }
         
         if (binary_format)
@@ -352,7 +366,7 @@ UINT MyComplexThread(LPVOID pParam)
             // Открываем файл в бинарном режиме
             std::ofstream file(filename, std::ios::binary);
             if (!file.is_open())
-                throw std::runtime_error("Не удалось открыть файл для записи");
+                throw new CInvalidArgException(true, IDS_FILE_ERROR);
 
             if (output_double)
             {
@@ -415,7 +429,7 @@ UINT MyComplexThread(LPVOID pParam)
             // Открываем файл в текстовом режиме
             std::ofstream file(filename);
             if (!file.is_open())
-                throw std::runtime_error("Не удалось открыть файл для записи");
+                throw new CInvalidArgException(true, IDS_FILE_ERROR);
 
             // Устанавливаем точность для double
             if (output_double)
@@ -453,12 +467,12 @@ UINT MyComplexThread(LPVOID pParam)
             file.close();
         }
     }
-    catch (const std::exception& e)
+    catch (CException* e)
     {
-        CStringW wideError = CA2W(e.what(), CP_UTF8);
         CString errorMsg;
-        errorMsg.Format(L"Ошибка: %s", wideError);
-        AfxMessageBox(errorMsg);
+        e->GetErrorMessage(errorMsg.GetBuffer(MAX_PATH), MAX_PATH, NULL);
+        errorMsg.ReleaseBuffer(MAX_PATH);
+        AfxMessageBox(errorMsg, MB_ICONERROR);
         AfxEndThread(1);
         return 1;
     }

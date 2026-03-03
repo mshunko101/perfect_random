@@ -48,10 +48,10 @@ public:
 // Третье ядро - фантазия (содержит несколько под-ядер)
 class FantasyCore {
 private:
-    std::vector<std::vector<int>> dimensions;
     std::mt19937 gen;
-
 public:
+    std::vector<std::vector<int>> dimensions;
+
     FantasyCore() : gen(std::time(0)) {}
 
     void add_collision(unsigned int a, unsigned int b) {
@@ -61,8 +61,7 @@ public:
         std::bitset<32> bits_b(b);
 
         for (int i = 0; i < 32; i++) {
-            if (bits_a[i] == bits_b[i]) {
-                // Проверяем, существует ли уже такой паттерн
+            if (bits_a[i] != bits_b[i]) {  // Обрабатываем только различающиеся биты
                 if (std::find(dimensions.begin(), dimensions.end(),
                     std::vector<int>{bits_a[i] ? 1 : 0, bits_b[i] ? 0 : 1}) == dimensions.end()) {
                     dimensions.push_back({
@@ -96,6 +95,7 @@ private:
     double m_prev;
     std::unordered_set<unsigned int> history;  // Буфер истории
     const int MAX_RETRIES = 49;  // Максимальное число попыток перегенерации
+    const int MAX_HISTORY_SIZE = 49;  // Максимальный размер истории
 
 public:
     RNG(unsigned int seed) : assocCore(seed), meanCore(), fantasyCore(), m_prev(0.00) {}
@@ -115,37 +115,45 @@ public:
     double generate() override {
         unsigned int base = assocCore.generate();
         int retries = 0;
+        unsigned int previous_base = base;  // Сохраняем предыдущее значение для обработки коллизии
 
         // Обработка коллизий
         while (isCollision(base) && retries < MAX_RETRIES) {
+            previous_base = base;  // Сохраняем предыдущее значение
             base = assocCore.generate();  // Перегенерация при коллизии
+
+            // Если столкнулись с той же коллизией, обрабатываем её
+            if (base == previous_base) {
+                handle_collision(previous_base, base);
+            }
+
             retries++;
         }
 
         if (retries >= MAX_RETRIES) {
-            // Если превышено максимальное число попыток, 
-            // можно применить дополнительные меры:
-            // 1. Обновить seed
-            // 2. Изменить параметры генератора
-            // 3. Сгенерировать новое начальное состояние
-
-            // Пример: обновление seed на основе текущего времени
+            // Если превышено максимальное число попыток, обновляем seed
             assocCore = AssociativityCore(static_cast<unsigned int>(std::time(0)));
             base = assocCore.generate();
+
+            // Очищаем историю и паттерны коллизий
+            clearHistory();
+            fantasyCore.dimensions.clear();
+        }
+
+        // Проверяем, не превысили ли мы размер истории
+        if (getHistorySize() >= MAX_HISTORY_SIZE) {
+            // Очищаем историю и паттерны коллизий
+            clearHistory();
+            fantasyCore.dimensions.clear();
         }
 
         double mean_adjusted = meanCore.adjust(base);
         double current = fantasyCore.apply_fantasy(mean_adjusted);
 
-        if (getHistorySize() == 49)
-        {
-            clearHistory();
-        }
-
         return current;
     }
 
-    // Метод для очистки истории (может понадобиться при длительной работе)
+    // Метод для очистки истории
     void clearHistory() {
         history.clear();
     }
@@ -154,5 +162,11 @@ public:
     size_t getHistorySize() const {
         return history.size();
     }
-};
 
+    // Метод для сброса генератора
+    void reset() {
+        assocCore = AssociativityCore(static_cast<unsigned int>(std::time(0)));
+        clearHistory();
+        fantasyCore.dimensions.clear();
+    }
+};

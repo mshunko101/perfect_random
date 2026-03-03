@@ -7,6 +7,7 @@ on:
       - 'src/**'
       - '**.sln'
       - '**.vcxproj'
+      - '.github/workflows/msbuild.yml'  # Только если изменился сам workflow
   release:
     types: [created]
 
@@ -21,6 +22,10 @@ permissions:
 jobs:
   build-and-release:
     runs-on: windows-latest
+    if: |
+      github.event_name != 'release' ||
+      (github.event_name == 'release' &&
+       startsWith(github.event.release.tag_name, 'v'))
 
     steps:
     - name: Checkout code
@@ -48,6 +53,7 @@ jobs:
         Copy-Item -Path "LICENSE" -Destination "${{env.ARTIFACTS_DIR}}" -Force
         Copy-Item -Path "rand++.hpp" -Destination "${{env.ARTIFACTS_DIR}}" -Force
 
+
     - name: Compress build output
       run: |
         $outputPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
@@ -67,7 +73,9 @@ jobs:
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
-      if: github.event_name == 'push'  # Создаём релиз только при push
+      if: |
+        github.event_name == 'push' &&
+        !contains(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
       with:
@@ -84,7 +92,9 @@ jobs:
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
-      if: always() && steps.create_release.outcome == 'success'  # Загружаем только если релиз создан
+      if: |
+        always() &&
+        steps.create_release.outcome == 'success'
       env:
         GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
       with:

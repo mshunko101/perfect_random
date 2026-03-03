@@ -11,10 +11,10 @@ env:
   SOLUTION_FILE_PATH: ./src/Rand++.sln
   BUILD_CONFIGURATION: Release
   ARTIFACTS_DIR: artifacts
-  ARTIFACTS_ZIP: ${{env.ARTIFACTS_DIR}}/build-artifacts.zip
+  # Убираем ARTIFACTS_ZIP из env — нельзя использовать env в определении других env
 
 permissions:
-  contents: write  # Нужны права на создание релизов
+  contents: write
 
 jobs:
   build-and-release:
@@ -43,24 +43,28 @@ jobs:
     - name: Compress build output
       run: |
         $outputPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
-        
+        $zipPath = "${{env.ARTIFACTS_DIR}}\build-artifacts.zip"
+
         if (Test-Path $outputPath) {
-            Compress-Archive -Path "$outputPath\*" -DestinationPath ${{env.ARTIFACTS_ZIP}}
+            Write-Host "Архивируем файлы из $outputPath в $zipPath"
+            Compress-Archive -Path "$outputPath\*" -DestinationPath $zipPath -Force
+            Write-Host "Архив успешно создан: $zipPath"
         } else {
-            Write-Error "Выходная директория не найдена"
+            Write-Error "Выходная директория не найдена: $outputPath"
+            exit 1
         }
 
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN}}
+        GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
       with:
-        tag_name: v${{ github.run_number }}  # Или используйте семантическое версионирование
+        tag_name: v${{ github.run_number }}
         release_name: Release v${{ github.run_number }}
         body: |
           Сборка проекта Rand++
-          
+
           **Версия:** v${{ github.run_number }}
           **Дата сборки:** ${{ github.event.head_commit.timestamp }}
           **Коммит:** ${{ github.sha }}
@@ -73,11 +77,14 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{env.ARTIFACTS_ZIP}}
+        asset_path: ${{env.ARTIFACTS_DIR}}/build-artifacts.zip
         asset_name: Rand++-v${{ github.run_number }}.zip
         asset_content_type: application/zip
 
     - name: Cleanup
+      if: always()  # Выполняем всегда, даже если предыдущие шаги провалились
       run: |
-        Remove-Item -Path ${{env.ARTIFACTS_DIR}} -Recurse -Force
-        
+        if (Test-Path ${{env.ARTIFACTS_DIR}}) {
+            Remove-Item -Path ${{env.ARTIFACTS_DIR}} -Recurse -Force
+            Write-Host "Временные файлы очищены"
+        }

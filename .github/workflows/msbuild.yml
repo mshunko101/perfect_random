@@ -53,7 +53,7 @@ jobs:
 
         if (Test-Path $outputPath) {
             Write-Host "Копируем бинарные файлы в директорию артефактов"
-            Copy-Item -Path "$outputPath\*" -Destination "${{env.ARTIFACTS_DIR}}" -Recurse -Force
+            Copy-Item -Path "$outputPath\*.exe" -Destination "${{env.ARTIFACTS_DIR}}" -Recurse -Force
 
             Write-Host "Архивируем все файлы из директории артефактов в $zipPath"
             Compress-Archive -Path "${{env.ARTIFACTS_DIR}}\*" -DestinationPath $zipPath -Force

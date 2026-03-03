@@ -11,7 +11,6 @@ env:
   SOLUTION_FILE_PATH: ./src/Rand++.sln
   BUILD_CONFIGURATION: Release
   ARTIFACTS_DIR: artifacts
-  # Убираем ARTIFACTS_ZIP из env — нельзя использовать env в определении других env
 
 permissions:
   contents: write
@@ -40,14 +39,23 @@ jobs:
       run: |
         New-Item -ItemType Directory -Force -Path ${{env.ARTIFACTS_DIR}}
 
+    - name: Copy additional files from repository
+      run: |
+        # Копируем нужные файлы из репозитория
+        Copy-Item -Path "README.md" -Destination "${{env.ARTIFACTS_DIR}}" -Force
+        Copy-Item -Path "LICENSE" -Destination "${{env.ARTIFACTS_DIR}}" -Force
+
     - name: Compress build output
       run: |
         $outputPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
         $zipPath = "${{env.ARTIFACTS_DIR}}\build-artifacts.zip"
 
         if (Test-Path $outputPath) {
-            Write-Host "Архивируем файлы из $outputPath в $zipPath"
-            Compress-Archive -Path "$outputPath\*" -DestinationPath $zipPath -Force
+            Write-Host "Копируем бинарные файлы в директорию артефактов"
+            Copy-Item -Path "$outputPath\*" -Destination "${{env.ARTIFACTS_DIR}}" -Recurse -Force
+
+            Write-Host "Архивируем все файлы из директории артефактов в $zipPath"
+            Compress-Archive -Path "${{env.ARTIFACTS_DIR}}\*" -DestinationPath $zipPath -Force
             Write-Host "Архив успешно создан: $zipPath"
         } else {
             Write-Error "Выходная директория не найдена: $outputPath"
@@ -82,7 +90,7 @@ jobs:
         asset_content_type: application/zip
 
     - name: Cleanup
-      if: always()  # Выполняем всегда, даже если предыдущие шаги провалились
+      if: always()
       run: |
         if (Test-Path ${{env.ARTIFACTS_DIR}}) {
             Remove-Item -Path ${{env.ARTIFACTS_DIR}} -Recurse -Force

@@ -2,8 +2,11 @@ name: MSBuild with Release
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+    paths:
+      - 'src/**'
+      - '**.sln'
+      - '**.vcxproj'
   release:
     types: [created]
 
@@ -41,7 +44,6 @@ jobs:
 
     - name: Copy additional files from repository
       run: |
-        # Копируем нужные файлы из репозитория
         Copy-Item -Path "README.md" -Destination "${{env.ARTIFACTS_DIR}}" -Force
         Copy-Item -Path "LICENSE" -Destination "${{env.ARTIFACTS_DIR}}" -Force
         Copy-Item -Path "rand++.hpp" -Destination "${{env.ARTIFACTS_DIR}}" -Force
@@ -54,7 +56,6 @@ jobs:
         if (Test-Path $outputPath) {
             Write-Host "Копируем бинарные файлы в директорию артефактов"
             Copy-Item -Path "$outputPath\*.exe" -Destination "${{env.ARTIFACTS_DIR}}" -Recurse -Force
-
             Write-Host "Архивируем все файлы из директории артефактов в $zipPath"
             Compress-Archive -Path "${{env.ARTIFACTS_DIR}}\*" -DestinationPath $zipPath -Force
             Write-Host "Архив успешно создан: $zipPath"
@@ -66,6 +67,7 @@ jobs:
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
+      if: github.event_name == 'push'  # Создаём релиз только при push
       env:
         GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
       with:
@@ -82,6 +84,7 @@ jobs:
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
+      if: always() && steps.create_release.outcome == 'success'  # Загружаем только если релиз создан
       env:
         GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
       with:

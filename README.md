@@ -23,5 +23,5 @@
 
 `` dieharder.exe -a -g 201 -f circle.bin ``
 
-Было сгенерированно 1648095660 байт, целое , бинарный, 0 , 256, byte, circle.bin, ГСЧ - mshunko
+Было сгенерированно 1648095660 байт, целое , бинарный, 0 , 256, byte, circle.bin, ГСЧ - mshunko. [Логи](dieharder.log) 
 

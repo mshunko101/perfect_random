@@ -10,12 +10,14 @@
 #include "generator_std.h"
 #include "afxdialogex.h"
 
+size_t RNG::inc_counter = 0;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 CString GetExecutableDirectory()
 {
-    TCHAR szPath[MAX_PATH];
+    TCHAR szPath[MAX_PATH] = {0};
     GetModuleFileName(NULL, szPath, MAX_PATH);
 
     CString strPath(szPath);
@@ -141,6 +143,7 @@ BOOL CRandDlg::OnInitDialog()
     m_serie_count.AddString(_T("1000000"));
     m_serie_count.AddString(_T("10000000"));
     m_serie_count.AddString(_T("100000000"));
+    m_serie_count.AddString(_T("1648095660"));
     m_serie_count.AddString(_T("1000000000"));
     m_serie_max.AddString(_T("256"));
     m_serie_max.AddString(_T("4294967296"));
@@ -255,7 +258,8 @@ UINT MyComplexThread(LPVOID pParam)
     CString buffer;
     pDlg->m_serie_count.GetWindowTextW(buffer);
     // Извлекаем данные из элементов управления
-    unsigned long serie_count = _ttoi64(buffer);
+    TCHAR* end;
+    unsigned long long serie_count = _tcstoull(buffer, &end, 10);
 
     CString serie_format = pDlg->m_type_text.GetCheck() > 0 ? _T("txt") : _T("bin");
 

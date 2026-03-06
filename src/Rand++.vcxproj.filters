@@ -63,6 +63,7 @@
     <None Include="res\Rand.rc2">
       <Filter>Файлы ресурсов</Filter>
     </None>
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\Rand++.ico">

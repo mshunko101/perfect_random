@@ -12,16 +12,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решен
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Debug|Any CPU.Build.0 = Debug|x64
 		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Debug|x64.ActiveCfg = Debug|x64
 		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Debug|x64.Build.0 = Debug|x64
 		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Debug|x86.ActiveCfg = Debug|Win32
 		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Debug|x86.Build.0 = Debug|Win32
+		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Release|Any CPU.ActiveCfg = Release|x64
+		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Release|Any CPU.Build.0 = Release|x64
 		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Release|x64.ActiveCfg = Release|x64
 		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Release|x64.Build.0 = Release|x64
 		{434C6F3B-5CD8-437C-8E14-818F92314E0C}.Release|x86.ActiveCfg = Release|Win32

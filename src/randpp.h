@@ -38,7 +38,7 @@ private:
     std::uniform_real_distribution<> dist;
     std::mt19937 gen;
 public:
-    MeanCore(double m = 1.0) : mean(m), dist(0.0, 1.0), gen(std::time(0)) {}
+    MeanCore(double m = 1.0) : mean(m), dist(0.0, 1.0), gen(static_cast<unsigned int>(std::time(0))) {}
 
     double adjust(unsigned int base) {
         return (base / static_cast<double>(UINT_MAX)) * mean + dist(gen) * 0.1;
@@ -52,7 +52,7 @@ private:
 public:
     std::vector<std::vector<int>> dimensions;
 
-    FantasyCore() : gen(std::time(0)) {}
+    FantasyCore() : gen(static_cast<unsigned int>(std::time(0))) {}
 
     void add_collision(unsigned int a, unsigned int b) {
         if (a == b) return;  // Пропускаем идентичные значения
@@ -92,13 +92,13 @@ private:
     AssociativityCore assocCore;
     MeanCore meanCore;
     FantasyCore fantasyCore;
-    double m_prev;
     std::unordered_set<unsigned int> history;  // Буфер истории
     const int MAX_RETRIES = 49;  // Максимальное число попыток перегенерации
     const int MAX_HISTORY_SIZE = 49;  // Максимальный размер истории
-
+    static size_t inc_counter;
+    const size_t inc_max = 1648095660;
 public:
-    RNG(unsigned int seed) : assocCore(seed), meanCore(), fantasyCore(), m_prev(0.00) {}
+    RNG(unsigned int seed) : assocCore(seed), meanCore(), fantasyCore() {}
 
     bool isCollision(unsigned int value) {
         if (history.count(value) > 0) {
@@ -113,6 +113,14 @@ public:
     }
 
     double generate() override {
+        if (inc_counter >= inc_max)
+        {
+            assocCore = AssociativityCore(static_cast<unsigned int>(time(nullptr)));
+            meanCore = MeanCore();
+            fantasyCore = FantasyCore();
+            inc_counter = 0;
+        }
+        inc_counter++;
         unsigned int base = assocCore.generate();
         int retries = 0;
         unsigned int previous_base = base;  // Сохраняем предыдущее значение для обработки коллизии

@@ -26,9 +26,9 @@ public:
     }
 
     // Дополнительные методы генерации
-    int generateInt(int min, int max) {
-        std::uniform_int_distribution<int> dist(min, max);
-        return dist(engine);
+    int generateInt(size_t min, size_t max) {
+        std::uniform_int_distribution<size_t> dist(min, max);
+        return static_cast<int>(dist(engine));
     }
 
     double generateRange(double min, double max) {
@@ -60,7 +60,7 @@ public:
     double generate() override {
         // Использование нескольких источников энтропии
         double result = baseEngine.generate();
-        size_t index = baseEngine.generateInt(0, bufferSize - 1);
+        size_t index = static_cast<size_t>(static_cast<int>(baseEngine.generateInt(0, bufferSize - 1)));
         result = (result + entropyBuffer[index]) / 2.0;
 
         // Обновление буфера энтропии
@@ -71,7 +71,7 @@ public:
 
     // Метод для заполнения буфера энтропией
     void addEntropy(double value) {
-        size_t index = baseEngine.generateInt(0, bufferSize - 1);
+        size_t index = static_cast<size_t>(static_cast<int>(baseEngine.generateInt(0, bufferSize - 1)));
         entropyBuffer[index] = value;
     }
 };

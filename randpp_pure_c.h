@@ -166,7 +166,7 @@ static bool is_collision(unsigned int value) {
     return false;
 }
 
-static double generate_random() 
+static double generate_random(size_t size) 
 {
     if (inc_counter >= inc_max)
     {
@@ -174,7 +174,7 @@ static double generate_random()
         init_rng((unsigned int)time(nullptr));
         inc_counter = 0;
     }
-    
+    inc_counter += size;
     unsigned int base = generate_associative();
     int retries = 0;
     const int MAX_RETRIES = 49;

@@ -12,6 +12,8 @@
 
 #include "randpp_pure_c.h"
 
+#define APPLICATION
+
 class  RNGAbstract
 {
 public:

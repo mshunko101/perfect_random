@@ -85,9 +85,13 @@ public:
         return base;
     }
 };
-
+#ifdef APPLICATION
 // Основной класс генератора
 class RNG : public RNGAbstract {
+#else
+class RNG 
+{
+#endif
 private:
     AssociativityCore assocCore;
     MeanCore meanCore;

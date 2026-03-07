@@ -112,7 +112,7 @@ public:
         fantasyCore.add_collision(a, b);
     }
 
-    double generate() override {
+    double generate(size_t size) override {
         if (inc_counter >= inc_max)
         {
             assocCore = AssociativityCore(static_cast<unsigned int>(time(nullptr)));
@@ -120,7 +120,7 @@ public:
             fantasyCore = FantasyCore();
             inc_counter = 0;
         }
-        inc_counter++;
+        inc_counter += size;
         unsigned int base = assocCore.generate();
         int retries = 0;
         unsigned int previous_base = base;  // Сохраняем предыдущее значение для обработки коллизии

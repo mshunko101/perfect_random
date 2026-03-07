@@ -338,7 +338,7 @@ UINT MyComplexThread(LPVOID pParam)
         throw new CInvalidArgException(true, IDS_SERIE_FORMAT);
 
         // Парсинг размера числа
-        enum class NumberSize { Byte, Word, DWord } number_size;
+        enum class NumberSize { Byte = 8, Word = 16, DWord = 32 } number_size;
         if (serie_datatype == L"byte")
             number_size = NumberSize::Byte;
         else if (serie_datatype == L"word")
@@ -377,7 +377,7 @@ UINT MyComplexThread(LPVOID pParam)
                 // Запись double значений в заданном диапазоне
                 for (size_t i = 0; i < serie_count; ++i)
                 {
-                    double random_double = rng_perfect->generate();
+                    double random_double = rng_perfect->generate((size_t)number_size);
                     random_double = serie_min + random_double * (serie_max - serie_min);
                     file.write(reinterpret_cast<const char*>(&random_double), sizeof(random_double));
 
@@ -394,7 +394,7 @@ UINT MyComplexThread(LPVOID pParam)
                 // Запись целых чисел разного размера
                 for (size_t i = 0; i < serie_count; ++i)
                 {
-                    double random_double = rng_perfect->generate();
+                    double random_double = rng_perfect->generate((size_t)number_size);
                     random_double = serie_min + random_double * (serie_max - serie_min);
 
                     switch (number_size)
@@ -441,7 +441,7 @@ UINT MyComplexThread(LPVOID pParam)
 
             for (size_t i = 0; i < serie_count; ++i)
             {
-                double random_double = rng_perfect->generate();
+                double random_double = rng_perfect->generate((size_t)number_size);
                 random_double = serie_min + random_double * (serie_max - serie_min);
 
                 if (output_double)

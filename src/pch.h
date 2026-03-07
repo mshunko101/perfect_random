@@ -15,7 +15,7 @@
 class  RNGAbstract
 {
 public:
-	virtual double generate() = 0;
+	virtual double generate(size_t size) = 0;
 };
 
 
@@ -27,9 +27,9 @@ public:
 	{
 		init_rng((unsigned int)time(NULL));
 	}
-	virtual double generate() override
+	virtual double generate(size_t size) override
 	{
-		return generate_random();
+		return generate_random(size);
 	}
 };
 

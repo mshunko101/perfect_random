@@ -11,7 +11,8 @@
 
 
 // Базовый класс генератора
-class RandomEngine :public RNGAbstract {
+class RandomEngine 
+{
 private:
     std::mt19937_64 engine;
     std::uniform_real_distribution<double> distribution;
@@ -21,7 +22,7 @@ public:
         : engine(seed), distribution(0.0, 1.0) {
     }
 
-    double generate() override {
+    double generate()   {
         return distribution(engine);
     }
 
@@ -57,7 +58,7 @@ public:
         }
     }
 
-    double generate() override {
+    double generate(size_t size) override {
         // Использование нескольких источников энтропии
         double result = baseEngine.generate();
         size_t index = static_cast<size_t>(static_cast<int>(baseEngine.generateInt(0, bufferSize - 1)));

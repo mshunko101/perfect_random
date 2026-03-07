@@ -1,3 +1,4 @@
+16 480 956 600 байт , целое, бинарный, 0, 256, byte, mshunko
 C:\Users\User\rand>dieharder.exe -a -g 201 -f .\sts-2.1.2\kmsh.bin
 #=============================================================================#
 #            dieharder version 3.31.1 Copyright 2003 Robert G. Brown          #

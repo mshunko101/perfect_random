@@ -469,3 +469,4 @@ FodyWeavers.xsd
 # debug information files
 *.dwo
 
+!dieharder/*.*

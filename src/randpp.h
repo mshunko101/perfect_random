@@ -100,7 +100,7 @@ private:
     const int MAX_RETRIES = 49;  // Максимальное число попыток перегенерации
     const int MAX_HISTORY_SIZE = 49;  // Максимальный размер истории
     static size_t inc_counter;
-    const size_t inc_max = 1648095660;
+    const size_t inc_max = 1646594460;
 public:
     RNG(unsigned int seed) : assocCore(seed), meanCore(), fantasyCore() {}
 

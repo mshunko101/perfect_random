@@ -18,7 +18,7 @@ static size_t history_count;
 static const size_t MAX_HISTORY = 49; 
 static size_t collision_count = 0;  
 static size_t inc_counter = 0;
-const size_t inc_max = 1648095660;
+const size_t inc_max = 1646594460;
 
 
 static void clear_history();

@@ -144,7 +144,7 @@ BOOL CRandDlg::OnInitDialog()
     m_serie_count.AddString(_T("10000000"));
     m_serie_count.AddString(_T("100000000"));
     m_serie_count.AddString(_T("1648095660"));
-    m_serie_count.AddString(_T("1000000000"));
+    m_serie_count.AddString(_T("1646594460"));
     m_serie_max.AddString(_T("256"));
     m_serie_max.AddString(_T("4294967296"));
     m_serie_max.SetWindowTextW(_T("0"));

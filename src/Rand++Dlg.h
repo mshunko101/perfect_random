@@ -57,4 +57,5 @@ public:
 	afx_msg void OnBnClickedTypeDouble();
 	afx_msg void OnBnClickedTypeInteger();
 	CComboBox m_serie_period;
+	CStatic m_static_period;
 };

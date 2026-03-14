@@ -16,6 +16,7 @@ class  RNGAbstract
 {
 public:
 	virtual double generate(size_t size) = 0;
+	virtual size_t get_period() = 0;
 };
 
 

@@ -15,7 +15,6 @@
 #define IDR_MAINFRAME                   128
 #define IDC_SERIES_COUNT                1005
 #define IDC_SERIE_TYPE                  1006
-#define IDC_SERIES_COUNT2               1006
 #define IDC_SERIES_PERIOD               1006
 #define IDC_SERIE_FORMAT                1007
 #define IDC_SERIE_MIN                   1008
@@ -46,8 +45,8 @@
 #define IDC_RADIO9                      1023
 #define IDC_TYPE_MSHUNKO                1023
 #define IDC_STATIC_TYPE_DATA            1024
-#define IDC_TYPE_PUREC                  1025
 #define IDC_COMBO2                      1026
+#define IDC_STATIC_PERIOD               1027
 
 // Next default values for new objects
 // 
@@ -55,7 +54,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1027
+#define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

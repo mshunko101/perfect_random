@@ -89,6 +89,7 @@ void CRandDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_SERIE_FILENAME, m_serie_filename);
     DDX_Control(pDX, IDC_PROGRESS_BAR, m_progress_bar);
     DDX_Control(pDX, IDC_SERIES_PERIOD, m_serie_period);
+    DDX_Control(pDX, IDC_STATIC_PERIOD, m_static_period);
 }
 
 BEGIN_MESSAGE_MAP(CRandDlg, CDialogEx)
@@ -143,7 +144,7 @@ BOOL CRandDlg::OnInitDialog()
     m_serie_max.AddString(_T("65536"));
     m_serie_max.AddString(_T("4294967296"));
 
-    m_serie_period.AddString(_T("74.7"));
+    m_serie_period.AddString(_T("73.8"));
 
     m_serie_max.SetWindowTextW(_T("0"));
     m_serie_min.SetWindowTextW(_T("0"));
@@ -340,6 +341,9 @@ UINT MyComplexThread(LPVOID pParam)
 
         RNG rng_perfect_var(static_cast<unsigned int>(time(nullptr)), time_period);
         RNGAbstract* rng_perfect = &rng_perfect_var;
+        size_t period = rng_perfect->get_period();
+        buffer.Format(_T("%Iu"), period);
+        pDlg->m_static_period.SetWindowTextW(buffer);
 
         if (binary_format)
         {

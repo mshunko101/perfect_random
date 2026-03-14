@@ -199,7 +199,10 @@ public:
         RotationCalculator rc(period);
         inc_max = (size_t) round((rc.getPeriod() * 365.25 * 24 * 3600)/8.0);
     }
-
+    size_t get_period() override
+    {
+        return inc_max;
+    }
     bool isCollision(unsigned int value) {
         if (history.count(value) > 0) {
             return true;

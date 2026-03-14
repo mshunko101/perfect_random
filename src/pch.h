@@ -10,8 +10,6 @@
 // Добавьте сюда заголовочные файлы для предварительной компиляции
 #include "framework.h"
 
-#include "randpp_pure_c.h"
-
 #define APPLICATION
 
 class  RNGAbstract
@@ -22,17 +20,5 @@ public:
 
 
 
-class  RandPP_PureC : public RNGAbstract
-{
-public:
-	RandPP_PureC()
-	{
-		init_rng((unsigned int)time(NULL));
-	}
-	virtual double generate(size_t size) override
-	{
-		return generate_random(size);
-	}
-};
 
 #endif //PCH_H

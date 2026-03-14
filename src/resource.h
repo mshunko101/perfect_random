@@ -15,6 +15,8 @@
 #define IDR_MAINFRAME                   128
 #define IDC_SERIES_COUNT                1005
 #define IDC_SERIE_TYPE                  1006
+#define IDC_SERIES_COUNT2               1006
+#define IDC_SERIES_PERIOD               1006
 #define IDC_SERIE_FORMAT                1007
 #define IDC_SERIE_MIN                   1008
 #define IDC_SERIE_MAX                   1009

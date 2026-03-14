@@ -1,22 +1,114 @@
 ﻿#pragma once
 // MSHUNKO 2026
+#define _USE_MATH_DEFINES
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+#include <math.h>
 #include <bitset>
 #include <cstdlib>
 #include <string>
 #include <chrono>
 #include <vector>
 #include <numeric>
-#include <cmath>
 #include <map>
 #include <algorithm>
 #include <random>
-#include <iostream>
 #include <fstream>
 #include <ctime>
-#include <iomanip>
 #include <stdexcept>
 #include <unordered_set>
 #include <cstdint>
+
+
+
+using namespace std;
+
+// Структура для хранения координат точки
+struct Point {
+    double x, y, z;
+    Point(double x = 0, double y = 0, double z = 0) : x(x), y(y), z(z) {}
+};
+
+class RotationCalculator {
+private:
+    Point A, B, O_okr;
+    double time_AB;
+
+    // Вспомогательные методы
+    Point vectorBetween(const Point& p1, const Point& p2) const {
+        return Point(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
+    }
+
+    double dotProduct(const Point& v1, const Point& v2) const {
+        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+    }
+
+    double vectorLength(const Point& v) const {
+        return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    }
+
+    // Расчётные методы
+    Point calculateOA() const {
+        return vectorBetween(A, O_okr);
+    }
+
+    Point calculateOB() const {
+        return vectorBetween(B, O_okr);
+    }
+
+    double calculateAngle() const {
+        Point OA = calculateOA();
+        Point OB = calculateOB();
+
+        double dot_product = dotProduct(OA, OB);
+        double length_OA = vectorLength(OA);
+        double length_OB = vectorLength(OB);
+
+        double cos_angle = dot_product / (length_OA * length_OB);
+        return acos(cos_angle);
+    }
+
+    double calculateOmega() const {
+        double angle = calculateAngle();
+        return angle / time_AB;
+    }
+
+public:
+    // Конструктор с инициализацией данных
+    RotationCalculator(const Point& a, const Point& b, const Point& o, double t)
+        : A(a), B(b), O_okr(o), time_AB(t) {
+    }
+
+    RotationCalculator(double time)
+    {
+        A = Point(-3, -0.5, -2.5);
+        B = Point(-5.0 / 3.00, -5.0 / 6.00, 25.0 / 4.00);
+        O_okr = Point(-2.64, -7.91, 1.65);
+        time_AB = time;
+    }
+
+    // Метод получения периода вращения
+    double getPeriod() const {
+        double omega = calculateOmega();
+        return 2 * M_PI / omega;
+    }
+
+    // Метод для вывода всех результатов
+    void showResults() const {
+        cout << fixed << setprecision(2);
+        cout << "Результаты расчёта:\n";
+
+        Point OA = calculateOA();
+        Point OB = calculateOB();
+
+        cout << "Длина вектора OA: " << vectorLength(OA) << "\n";
+        cout << "Длина вектора OB: " << vectorLength(OB) << "\n";
+        cout << "Угол между векторами (рад): " << calculateAngle() << "\n";
+        cout << "Угловая скорость (рад/год): " << calculateOmega() << "\n";
+        cout << "Период вращения (лет): " << getPeriod() << "\n";
+    }
+};
 
 // Первое ядро - ассоциативность
 class AssociativityCore {
@@ -99,10 +191,14 @@ private:
     std::unordered_set<unsigned int> history;  // Буфер истории
     const int MAX_RETRIES = 49;  // Максимальное число попыток перегенерации
     const int MAX_HISTORY_SIZE = 49;  // Максимальный размер истории
-    static size_t inc_counter;
-    const size_t inc_max = 1684109100;
+    size_t inc_counter;
+    size_t inc_max;
 public:
-    RNG(unsigned int seed) : assocCore(seed), meanCore(), fantasyCore() {}
+    RNG(unsigned int seed, double period) : assocCore(seed), meanCore(), fantasyCore()
+    {
+        RotationCalculator rc(period);
+        inc_max = (size_t) round((rc.getPeriod() * 365.25 * 24 * 3600)/8.0);
+    }
 
     bool isCollision(unsigned int value) {
         if (history.count(value) > 0) {

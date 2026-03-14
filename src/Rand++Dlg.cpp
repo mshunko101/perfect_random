@@ -1,16 +1,13 @@
 ﻿
 // Rand++Dlg.cpp: файл реализации
 //
-
 #include "pch.h"
 #include "framework.h"
 #include "Rand++.h"
 #include "Rand++Dlg.h"
 #include "randpp.h"
-#include "generator_std.h"
 #include "afxdialogex.h"
 
-size_t RNG::inc_counter = 0;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -90,10 +87,8 @@ void CRandDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_TYPE_WORD, m_type_word);
     DDX_Control(pDX, IDC_TYPE_DWORD, m_type_dword);
     DDX_Control(pDX, IDC_SERIE_FILENAME, m_serie_filename);
-    DDX_Control(pDX, IDC_TYPE_STD, m_type_std);
-    DDX_Control(pDX, IDC_TYPE_MSHUNKO, m_type_mshunko);
     DDX_Control(pDX, IDC_PROGRESS_BAR, m_progress_bar);
-    DDX_Control(pDX, IDC_TYPE_PUREC, m_type_pure_c);
+    DDX_Control(pDX, IDC_SERIES_PERIOD, m_serie_period);
 }
 
 BEGIN_MESSAGE_MAP(CRandDlg, CDialogEx)
@@ -143,11 +138,13 @@ BOOL CRandDlg::OnInitDialog()
     m_serie_count.AddString(_T("1000000"));
     m_serie_count.AddString(_T("10000000"));
     m_serie_count.AddString(_T("100000000"));
-    m_serie_count.AddString(_T("1648095660"));
-    m_serie_count.AddString(_T("1646594460"));
-    m_serie_count.AddString(_T("1684109100"));
+
     m_serie_max.AddString(_T("256"));
+    m_serie_max.AddString(_T("65536"));
     m_serie_max.AddString(_T("4294967296"));
+
+    m_serie_period.AddString(_T("74.7"));
+
     m_serie_max.SetWindowTextW(_T("0"));
     m_serie_min.SetWindowTextW(_T("0"));
 	// Задает значок для этого диалогового окна.  Среда делает это автоматически,
@@ -289,20 +286,6 @@ UINT MyComplexThread(LPVOID pParam)
     CString serie_filename_tmp;
     pDlg->m_serie_filename.GetWindowTextW(serie_filename_tmp);
 
-    CString randomizer;
-    if (pDlg->m_type_std.GetCheck())
-    {
-        randomizer = _T("std");
-    }
-    if (pDlg->m_type_mshunko.GetCheck())
-    {
-        randomizer = _T("mshunko");
-    }
-    if (pDlg->m_type_pure_c.GetCheck())
-    {
-        randomizer = _T("pure_c");
-    }
-
 
     CString executableDir = GetExecutableDirectory();
 
@@ -351,21 +334,13 @@ UINT MyComplexThread(LPVOID pParam)
 
         // Преобразуем CString в std::string для работы с STL 
 
+        pDlg->m_serie_period.GetWindowTextW(buffer);
         // Инициализация генератора случайных чисел
+        double time_period = _ttof(buffer);
 
-        StdGeneralRNG rg;
-        RandPP_PureC rps;
-        RNG rng_perfect_var(static_cast<unsigned int>(time(nullptr)));
+        RNG rng_perfect_var(static_cast<unsigned int>(time(nullptr)), time_period);
         RNGAbstract* rng_perfect = &rng_perfect_var;
-        if (randomizer == _T("std"))
-        {
-            rng_perfect = &rg;
-        }
-        else if (randomizer == _T("pure_c"))
-        {
-            rng_perfect = &rps;
-        }
-        
+
         if (binary_format)
         {
             // Открываем файл в бинарном режиме

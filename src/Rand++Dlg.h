@@ -53,11 +53,8 @@ public:
 	CButton m_type_word;
 	CButton m_type_dword;
 	CEdit m_serie_filename;
-	CButton m_type_std;
-	CButton m_type_mshunko;
 	CProgressCtrl m_progress_bar;
 	afx_msg void OnBnClickedTypeDouble();
 	afx_msg void OnBnClickedTypeInteger();
-	afx_msg void OnCbnSelchangeCombo1();
-	CButton m_type_pure_c;
+	CComboBox m_serie_period;
 };

@@ -184,12 +184,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
-    <ClInclude Include="generator_std.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rand++.h" />
     <ClInclude Include="Rand++Dlg.h" />
     <ClInclude Include="randpp.h" />
-    <ClInclude Include="randpp_pure_c.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

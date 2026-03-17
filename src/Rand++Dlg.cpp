@@ -135,10 +135,10 @@ BOOL CRandDlg::OnInitDialog()
     m_serie_count.AddString(_T("100"));
     m_serie_count.AddString(_T("1000"));
     m_serie_count.AddString(_T("10000"));
-    m_serie_count.AddString(_T("100000"));
-    m_serie_count.AddString(_T("1000000"));
-    m_serie_count.AddString(_T("10000000"));
-    m_serie_count.AddString(_T("100000000"));
+    m_serie_count.AddString(_T("134217728"));
+    m_serie_count.AddString(_T("268435456"));
+    m_serie_count.AddString(_T("536870912"));
+    m_serie_count.AddString(_T("1668467902"));
 
     m_serie_max.AddString(_T("256"));
     m_serie_max.AddString(_T("65536"));

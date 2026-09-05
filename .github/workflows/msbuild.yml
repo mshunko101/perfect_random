@@ -1,4 +1,4 @@
-name: MSBuild with Release (MFC included)
+name: MSBuild with Release
 
 on:
   push:
@@ -31,17 +31,31 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v6
 
-    # ДОБАВЛЕНО: установка компонента MFC
-    - name: Install MFC component
-      uses: lukka/get-vs-installer@v3
-      with:
-        release: current
-
-    - name: Run vs installer to add MFC
+    - name: Find Visual Studio Installer
+      id: vs-installer-path
+      shell: powershell
       run: |
-        & "${{ runner.tool_cache }}/vs_installer/vs_installer.exe" modify --quiet `
+        $vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        if (-not (Test-Path $vsWhere)) {
+          Write-Error "vswhere.exe not found. Cannot proceed."
+          exit 1
+        }
+        $path = & $vsWhere -latest -find setup.exe
+        echo "installer_path=$path" >> $env:GITHUB_OUTPUT
+
+    - name: Install MFC (VC.ATLMFC)
+      shell: powershell
+      run: |
+        $installer = "${{ steps.vs-installer-path.outputs.installer_path }}"
+        if (-not (Test-Path $installer)) {
+          Write-Error "Visual Studio Installer not found at expected path."
+          exit 1
+        }
+        Write-Host "Starting MFC installation..."
+        & $installer modify --quiet `
           --add Microsoft.VisualStudio.Component.VC.ATLMFC `
           --wait
+        Write-Host "MFC installation completed."
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v3

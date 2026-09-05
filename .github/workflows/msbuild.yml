@@ -56,7 +56,7 @@ jobs:
     - name: Compress build output
       run: |
         $outputPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
-        $zipPath = "${{env.ARTIFACTS_DIR}}\build-artifacts.zip"
+        $zipPath = "${{env.ARTIFACTS_DIR}}\perfect_random.zip"
 
         if (Test-Path $outputPath) {
             Write-Host "Копируем бинарные файлы в директорию артефактов"
@@ -83,7 +83,7 @@ jobs:
           **Версия:** v${{ github.run_number }}
           **Дата сборки:** ${{ github.event.head_commit.timestamp }}
           **Коммит:** ${{ github.sha }}
-        files: ${{env.ARTIFACTS_DIR}}/build-artifacts.zip
+        files: ${{env.ARTIFACTS_DIR}}/perfect_random.zip
         draft: false
         prerelease: false
 
@@ -93,7 +93,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
       with:
-        files: ${{env.ARTIFACTS_DIR}}/build-artifacts.zip
+        files: ${{env.ARTIFACTS_DIR}}/perfect_random.zip
 
     - name: Cleanup
       if: always()

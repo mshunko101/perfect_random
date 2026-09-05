@@ -45,7 +45,9 @@ jobs:
 
     - name: Generate test data (CLI mode)
       run: |
-        .\src\x64\Release\Rand++.exe -n 250000 -f bin -s dword -o test_data.bin
+        $outputFile = Join-Path $PWD "test_data.bin"
+        Write-Host "Generating test data to: $outputFile"
+        .\src\x64\${{env.BUILD_CONFIGURATION}}\Rand++.exe -n 250000 -f bin -s dword -o $outputFile
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -59,12 +61,23 @@ jobs:
     - name: Run NIST statistical tests
       shell: pwsh
       run: |
-        python -c "
+        $testFile = Join-Path $PWD "test_data.bin"
+        if (-not (Test-Path $testFile)) {
+          Write-Error "test_data.bin not found at: $testFile"
+          Get-ChildItem -Path $PWD -Recurse -Filter "*.bin" | ForEach-Object { Write-Host "Found: $($_.FullName)" }
+          exit 1
+        }
+
+        python -c @'
         import sp80022suite
         import sys
+        import os
 
-        with open('test_data.bin', 'rb') as f:
+        test_file = os.path.join(os.getcwd(), 'test_data.bin')
+        with open(test_file, 'rb') as f:
             data = f.read()
+
+        print(f'Read {len(data)} bytes from {test_file}')
 
         bits = []
         for byte in data:
@@ -75,20 +88,20 @@ jobs:
         bit_str = ''.join(str(b) for b in bits)
 
         tests = {
-            'Frequency':          sp80022suite.frequency,
-            'BlockFrequency':     sp80022suite.block_frequency,
-            'Runs':               sp80022suite.runs,
-            'LongestRunOnes':     sp80022suite.longest_run_of_ones,
-            'Rank':               sp80022suite.rank,
-            'NonOverlappingTpl':  sp80022suite.non_overlapping_template,
-            'OverlappingTpl':     sp80022suite.overlapping_template,
-            'Universal':          sp80022suite.universal,
-            'LinearComplexity':   sp80022suite.linear_complexity,
-            'Serial':             sp80022suite.serial,
-            'ApproxEntropy':      sp80022suite.approximate_entropy,
-            'CumulativeSums':     sp80022suite.cumulative_sums,
-            'RandomExcursions':   sp80022suite.random_excursions,
-            'RandomExcursionsVar':sp80022suite.random_excursions_variant,
+            'Frequency':           sp80022suite.frequency,
+            'BlockFrequency':      sp80022suite.block_frequency,
+            'Runs':                sp80022suite.runs,
+            'LongestRunOnes':      sp80022suite.longest_run_of_ones,
+            'Rank':                sp80022suite.rank,
+            'NonOverlappingTpl':   sp80022suite.non_overlapping_template,
+            'OverlappingTpl':      sp80022suite.overlapping_template,
+            'Universal':           sp80022suite.universal,
+            'LinearComplexity':    sp80022suite.linear_complexity,
+            'Serial':              sp80022suite.serial,
+            'ApproxEntropy':       sp80022suite.approximate_entropy,
+            'CumulativeSums':      sp80022suite.cumulative_sums,
+            'RandomExcursions':    sp80022suite.random_excursions,
+            'RandomExcursionsVar': sp80022suite.random_excursions_variant,
         }
 
         failed = []
@@ -114,7 +127,7 @@ jobs:
             sys.exit(1)
         else:
             print(f'All {len(tests)} tests PASSED')
-        "
+        '@
 
     - name: Create artifacts directory
       run: |
@@ -122,7 +135,7 @@ jobs:
 
     - name: Copy additional files from repository
       run: |
-        Copy-Item -Path "./docs/README.md" -Destination "${{env.ARTIFACTS_DIR}}" -Force
+        Copy-Item -Path "README.md" -Destination "${{env.ARTIFACTS_DIR}}" -Force
         Copy-Item -Path "LICENSE" -Destination "${{env.ARTIFACTS_DIR}}" -Force
         Copy-Item -Path "randpp.h" -Destination "${{env.ARTIFACTS_DIR}}" -Force
 
@@ -174,4 +187,7 @@ jobs:
         if (Test-Path ${{env.ARTIFACTS_DIR}}) {
             Remove-Item -Path ${{env.ARTIFACTS_DIR}} -Recurse -Force
             Write-Host "Временные файлы очищены"
+        }
+        if (Test-Path "test_data.bin") {
+            Remove-Item -Path "test_data.bin" -Force
         }

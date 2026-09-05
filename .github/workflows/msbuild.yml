@@ -31,26 +31,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v6
 
-    - name: Find Visual Studio Installer
-      id: vs-installer-path
-      shell: powershell
-      run: |
-        $vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-        if (-not (Test-Path $vsWhere)) {
-          Write-Error "vswhere.exe not found. Cannot proceed."
-          exit 1
-        }
-        $path = & $vsWhere -latest -find setup.exe
-        echo "installer_path=$path" >> $env:GITHUB_OUTPUT
-
     - name: Install MFC (VC.ATLMFC)
       shell: powershell
       run: |
-        $installer = "${{ steps.vs-installer-path.outputs.installer_path }}"
+        $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe"
         if (-not (Test-Path $installer)) {
-          Write-Error "Visual Studio Installer not found at expected path."
+          Write-Error "Visual Studio Installer not found at: $installer"
           exit 1
         }
+        Write-Host "Found installer: $installer"
         Write-Host "Starting MFC installation..."
         & $installer modify --quiet `
           --add Microsoft.VisualStudio.Component.VC.ATLMFC `

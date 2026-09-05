@@ -21,6 +21,7 @@
 #include <ctime>
 
 #include "resource.h"
+#pragma comment(lib, "comctl32.lib")
 
 // ── Custom messages ─────────────────────────────────────────────
 #ifndef WM_UPDATE_PROGRESS

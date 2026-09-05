@@ -66,87 +66,83 @@ jobs:
         import sys
         import os
 
-        test_file = os.path.join(os.getcwd(), 'test_data.bin')
-        with open(test_file, 'rb') as f:
+        test_file = os.path.join(os.getcwd(), "test_data.bin")
+        with open(test_file, "rb") as f:
             data = f.read()
 
-        print(f'Read {len(data)} bytes from {test_file}')
+        print(f"Read {len(data)} bytes from {test_file}")
 
-        bits = []
-        for byte in data:
-            for bit_pos in range(8):
-                bits.append((byte >> (7 - bit_pos)) & 1)
-
+        # Convert to bit sequence as bytes (each byte is 0 or 1)
+        bits = bytes([(byte >> (7 - bit_pos)) & 1 for byte in data for bit_pos in range(8)])
         bits = bits[:1000000]
-        bit_str = ''.join(str(b) for b in bits)
+        print(f"Extracted {len(bits)} bits")
 
-        # Discover all available test functions in sp80022suite
-        all_funcs = [x for x in dir(sp80022suite) if not x.startswith('_') and callable(getattr(sp80022suite, x))]
-        print(f'Available sp80022suite functions: {all_funcs}')
-        print()
+        results = []
 
-        # Map of known test names (try multiple naming conventions)
-        test_candidates = {
-            'Frequency (Monobit)':     ['frequency', 'monobit_test', 'monobit'],
-            'Block Frequency':         ['block_frequency', 'frequency_within_block', 'block_frequency_test'],
-            'Runs':                    ['runs', 'runs_test'],
-            'Longest Run of Ones':     ['longest_run_of_ones', 'longest_run', 'longest_run_ones', 'longest_run_test'],
-            'Rank':                    ['rank', 'binary_matrix_rank', 'rank_test', 'matrix_rank'],
-            'Non-Overlapping Template': ['non_overlapping_template_matchings', 'non_overlapping_template_matching'],
-            'Overlapping Template':    ['overlapping_template_matchings', 'overlapping_template_matching', 'overlapping_template'],
-            'Universal':               ['universal', 'universal_statistical', 'universal_test'],
-            'Linear Complexity':       ['linear_complexity', 'linear_complexity_test'],
-            'Serial':                  ['serial', 'serial_test'],
-            'Approximate Entropy':     ['approximate_entropy', 'approximate_entropy_test'],
-            'Cumulative Sums':         ['cumulative_sums', 'cumulative_sums_test', 'cusum'],
-            'Random Excursions':       ['random_excursions', 'random_excursion', 'random_excursions_test'],
-            'Random Excursions Variant': ['random_excursions_variant', 'random_excursion_variant', 'random_excursions_variant_test'],
-        }
+        # 1-arg tests (data only, as bytes of 0/1)
+        one_arg_tests = [
+            ("Frequency",              sp80022suite.frequency),
+            ("Runs",                   sp80022suite.runs),
+            ("Longest Run of Ones",    sp80022suite.longest_run_of_ones),
+            ("Rank",                   sp80022suite.rank),
+            ("Universal",              sp80022suite.universal),
+            ("Cumulative Sums",        sp80022suite.cumulative_sums),
+            ("Random Excursions",      sp80022suite.random_excursions),
+            ("Random Excursions Var",  sp80022suite.random_excursions_variant),
+            ("Discrete Fourier",       sp80022suite.discrete_fourier_transform),
+        ]
 
-        failed = []
-        ran = 0
-
-        for test_name, candidates in test_candidates.items():
-            func = None
-            for cand in candidates:
-                if hasattr(sp80022suite, cand):
-                    func = getattr(sp80022suite, cand)
-                    break
-
-            if func is None:
-                print(f'{test_name:30s}  SKIPPED (not found in package)')
-                continue
-
+        for name, fn in one_arg_tests:
             try:
-                p_value = func(bit_str)
-                # Some tests return a tuple or list
-                if isinstance(p_value, (tuple, list)):
-                    p_value = p_value[0]
-                    if isinstance(p_value, (tuple, list)):
-                        p_value = p_value[0]
-
-                p_value = float(p_value)
-                status = 'PASS' if p_value >= 0.01 else 'FAIL'
-                print(f'{test_name:30s}  p={p_value:.6f}  {status}')
-                ran += 1
-                if p_value < 0.01:
-                    failed.append((test_name, p_value))
+                p = fn(bits)
+                if isinstance(p, (tuple, list)):
+                    p = p[0]
+                p = float(p)
+                status = "PASS" if p >= 0.01 else "FAIL"
+                print(f"{name:30s}  p={p:.6f}  {status}")
+                results.append((name, p, status))
             except Exception as e:
-                print(f'{test_name:30s}  ERROR: {e}')
-                failed.append((test_name, None))
-                ran += 1
+                print(f"{name:30s}  ERROR: {e}")
+                results.append((name, None, "ERROR"))
+
+        # 2-arg tests (parameter + data)
+        two_arg_tests = [
+            ("Block Frequency",          sp80022suite.block_frequency,                    128),
+            ("Non-Overlapping Template",  sp80022suite.non_overlapping_template_matchings, bytes([0]*8)),
+            ("Overlapping Template",     sp80022suite.overlapping_template_matchings,    bytes([1]*9)),
+            ("Linear Complexity",         sp80022suite.linear_complexity,                  500),
+            ("Serial",                    sp80022suite.serial,                              16),
+            ("Approximate Entropy",       sp80022suite.approximate_entropy,                16),
+        ]
+
+        for name, fn, param in two_arg_tests:
+            try:
+                p = fn(param, bits)
+                if isinstance(p, (tuple, list)):
+                    p = p[0]
+                p = float(p)
+                status = "PASS" if p >= 0.01 else "FAIL"
+                print(f"{name:30s}  p={p:.6f}  {status}")
+                results.append((name, p, status))
+            except Exception as e:
+                print(f"{name:30s}  ERROR: {e}")
+                results.append((name, None, "ERROR"))
 
         print()
-        print(f'Ran {ran} tests, {len(failed)} failed')
+        failed = [r for r in results if r[2] != "PASS"]
+        passed = [r for r in results if r[2] == "PASS"]
+
+        print(f"Passed: {len(passed)} / {len(results)}")
         if failed:
-            for name, p in failed:
+            print(f"Failed: {len(failed)}")
+            for name, p, status in failed:
                 if p is not None:
-                    print(f'  FAILED: {name} (p={p:.6f})')
+                    print(f"  {name}: p={p:.6f} ({status})")
                 else:
-                    print(f'  ERROR:  {name}')
+                    print(f"  {name}: {status}")
             sys.exit(1)
         else:
-            print('All tests PASSED')
+            print("All tests PASSED")
         '@
 
     - name: Create artifacts directory

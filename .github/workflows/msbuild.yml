@@ -49,13 +49,27 @@ jobs:
         }
 
         Write-Host "VS path: $vsPath"
-        Write-Host "Starting MFC installation..."
+        Write-Host "Starting MFC installation (this takes 5-15 minutes)..."
 
-        Start-Process -FilePath $vsInstaller `
-          -ArgumentList "modify","--installPath","`"$vsPath`"","--add","Microsoft.VisualStudio.Component.VC.ATLMFC","--quiet","--norestart","--wait" `
-          -Wait
+        $process = Start-Process -FilePath $vsInstaller `
+          -ArgumentList @(
+            "modify",
+            "--installPath", "`"$vsPath`"",
+            "--add", "Microsoft.VisualStudio.Component.VC.ATLMFC",
+            "--add", "Microsoft.VisualStudio.Component.VC.MFC.x86.x64",
+            "--quiet",
+            "--norestart",
+            "--wait"
+          ) -Wait -PassThru
 
-        Write-Host "MFC installation completed."
+        Write-Host "Installer exit code: $($process.ExitCode)"
+
+        if ($process.ExitCode -ne 0) {
+          Write-Error "MFC installation failed with exit code $($process.ExitCode)"
+          exit 1
+        }
+
+        Write-Host "MFC installation completed successfully."
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v3

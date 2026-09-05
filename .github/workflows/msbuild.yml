@@ -41,9 +41,9 @@ jobs:
         }
         Write-Host "Found installer: $installer"
         Write-Host "Starting MFC installation..."
-        & $installer modify --quiet `
-          --add Microsoft.VisualStudio.Component.VC.ATLMFC `
-          --wait
+        Start-Process -FilePath $installer `
+          -ArgumentList "modify","--quiet","--norestart","--add","Microsoft.VisualStudio.Component.VC.ATLMFC" `
+          -Wait
         Write-Host "MFC installation completed."
 
     - name: Add MSBuild to PATH

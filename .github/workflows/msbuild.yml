@@ -7,7 +7,7 @@ on:
       - 'src/**'
       - '**.sln'
       - '**.vcxproj'
-      - '.github/workflows/msbuild.yml'  # Только если изменился сам workflow
+      - '.github/workflows/msbuild.yml'
   release:
     types: [created]
 
@@ -29,13 +29,13 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v3
 
     - name: Setup NuGet
-      uses: nuget/setup-nuget@v1
+      uses: nuget/setup-nuget@v2
 
     - name: Restore NuGet packages
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
@@ -53,7 +53,6 @@ jobs:
         Copy-Item -Path "LICENSE" -Destination "${{env.ARTIFACTS_DIR}}" -Force
         Copy-Item -Path "randpp.h" -Destination "${{env.ARTIFACTS_DIR}}" -Force
 
-
     - name: Compress build output
       run: |
         $outputPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
@@ -70,38 +69,31 @@ jobs:
             exit 1
         }
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      if: |
-        github.event_name == 'push' &&
-        !contains(github.ref, 'refs/tags/')
+    - name: Create Release and Upload Asset
+      uses: softprops/action-gh-release@v3
+      if: github.event_name == 'push'
       env:
         GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
       with:
         tag_name: v${{ github.run_number }}
-        release_name: Release v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
         body: |
           Сборка проекта Rand++
 
           **Версия:** v${{ github.run_number }}
           **Дата сборки:** ${{ github.event.head_commit.timestamp }}
           **Коммит:** ${{ github.sha }}
+        files: ${{env.ARTIFACTS_DIR}}/build-artifacts.zip
         draft: false
         prerelease: false
 
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      if: |
-        always() &&
-        steps.create_release.outcome == 'success'
+    - name: Upload Asset to existing Release
+      uses: softprops/action-gh-release@v3
+      if: github.event_name == 'release'
       env:
         GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{env.ARTIFACTS_DIR}}/build-artifacts.zip
-        asset_name: Rand++-v${{ github.run_number }}.zip
-        asset_content_type: application/zip
+        files: ${{env.ARTIFACTS_DIR}}/build-artifacts.zip
 
     - name: Cleanup
       if: always()

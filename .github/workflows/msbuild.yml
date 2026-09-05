@@ -34,16 +34,27 @@ jobs:
     - name: Install MFC (VC.ATLMFC)
       shell: powershell
       run: |
-        $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe"
-        if (-not (Test-Path $installer)) {
-          Write-Error "Visual Studio Installer not found at: $installer"
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $vsInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+
+        if (-not (Test-Path $vsInstaller)) {
+          Write-Error "vs_installer.exe not found at: $vsInstaller"
           exit 1
         }
-        Write-Host "Found installer: $installer"
+
+        $vsPath = & $vswhere -latest -property installationPath
+        if (-not $vsPath) {
+          Write-Error "Visual Studio installation not found via vswhere"
+          exit 1
+        }
+
+        Write-Host "VS path: $vsPath"
         Write-Host "Starting MFC installation..."
-        Start-Process -FilePath $installer `
-          -ArgumentList "modify","--quiet","--norestart","--add","Microsoft.VisualStudio.Component.VC.ATLMFC" `
+
+        Start-Process -FilePath $vsInstaller `
+          -ArgumentList "modify","--installPath","`"$vsPath`"","--add","Microsoft.VisualStudio.Component.VC.ATLMFC","--quiet","--norestart","--wait" `
           -Wait
+
         Write-Host "MFC installation completed."
 
     - name: Add MSBuild to PATH

@@ -1,4 +1,4 @@
-name: MSBuild with Release
+name: MSBuild with Release (MFC included)
 
 on:
   push:
@@ -30,6 +30,18 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
+
+    # ДОБАВЛЕНО: установка компонента MFC
+    - name: Install MFC component
+      uses: lukka/get-vs-installer@v3
+      with:
+        release: current
+
+    - name: Run vs installer to add MFC
+      run: |
+        & "${{ runner.tool_cache }}/vs_installer/vs_installer.exe" modify --quiet `
+          --add Microsoft.VisualStudio.Component.VC.ATLMFC `
+          --wait
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v3

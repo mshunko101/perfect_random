@@ -1,14 +1,7 @@
-﻿
-// Rand++.cpp: определяет поведение классов для приложения.
-//
-
-#include "pch.h"
-#include "framework.h"
-#include "Rand++.h"
-
-
-// Rand++.cpp — WinAPI version (no MFC)
+﻿// Rand++.cpp — WinAPI version (no MFC) + CLI mode
+#pragma once
 #define APPLICATION
+#include "pch.h"
 #include "randpp.h"
 
 #include <windows.h>
@@ -19,8 +12,10 @@
 #include <thread>
 #include <cstdint>
 #include <ctime>
+#include <sstream>
 
 #include "resource.h"
+
 #pragma comment(lib, "comctl32.lib")
 
 // ── Custom messages ─────────────────────────────────────────────
@@ -69,7 +64,163 @@ std::wstring LoadStr(UINT uID) {
     return std::wstring(buf, len);
 }
 
-// ── Worker thread ────────────────────────────────────────────────
+// ── Core generation logic (shared by GUI and CLI) ───────────────
+bool GenerateFile(const ThreadParams& p, std::wstring& errMsg) {
+    if (p.serie_count == 0) {
+        errMsg = L"count";
+        return false;
+    }
+    if (p.serie_min >= p.serie_max) {
+        errMsg = L"minmax";
+        return false;
+    }
+
+    RNG rng(static_cast<unsigned int>(time(nullptr)), p.time_period);
+
+    if (p.binary_format) {
+        std::ofstream file(p.filename, std::ios::binary);
+        if (!file.is_open()) {
+            errMsg = L"file";
+            return false;
+        }
+
+        if (p.output_double) {
+            for (size_t i = 0; i < p.serie_count; ++i) {
+                double r = rng.generate(static_cast<size_t>(p.number_size));
+                r = p.serie_min + r * (p.serie_max - p.serie_min);
+                file.write(reinterpret_cast<const char*>(&r), sizeof(r));
+            }
+        }
+        else {
+            for (size_t i = 0; i < p.serie_count; ++i) {
+                double r = rng.generate(static_cast<size_t>(p.number_size));
+                r = p.serie_min + r * (p.serie_max - p.serie_min);
+                switch (p.number_size) {
+                case NumberSize::Byte: {
+                    uint8_t v = static_cast<uint8_t>(r);
+                    file.write(reinterpret_cast<const char*>(&v), sizeof(v));
+                    break;
+                }
+                case NumberSize::Word: {
+                    uint16_t v = static_cast<uint16_t>(r);
+                    file.write(reinterpret_cast<const char*>(&v), sizeof(v));
+                    break;
+                }
+                case NumberSize::DWord: {
+                    uint32_t v = static_cast<uint32_t>(r);
+                    file.write(reinterpret_cast<const char*>(&v), sizeof(v));
+                    break;
+                }
+                }
+            }
+        }
+    }
+    else {
+        std::ofstream file(p.filename);
+        if (!file.is_open()) {
+            errMsg = L"file";
+            return false;
+        }
+
+        if (p.output_double)
+            file << std::fixed << std::setprecision(15);
+
+        for (size_t i = 0; i < p.serie_count; ++i) {
+            double r = rng.generate(static_cast<size_t>(p.number_size));
+            r = p.serie_min + r * (p.serie_max - p.serie_min);
+
+            if (p.output_double) {
+                file << r;
+            }
+            else {
+                uint32_t value = static_cast<uint32_t>(r);
+                switch (p.number_size) {
+                case NumberSize::Byte:  file << static_cast<uint8_t>(value);  break;
+                case NumberSize::Word:  file << static_cast<uint16_t>(value); break;
+                case NumberSize::DWord: file << value; break;
+                }
+            }
+            if (i < p.serie_count - 1)
+                file << "\n";
+        }
+    }
+    return true;
+}
+
+// ── CLI mode ─────────────────────────────────────────────────────
+int RunCLI(int argc, wchar_t* argv[]) {
+    ThreadParams p;
+    p.serie_count = 1000000;
+    p.output_double = false;
+    p.binary_format = true;
+    p.serie_min = 0;
+    p.serie_max = 4294967295ULL;
+    p.number_size = NumberSize::DWord;
+    p.time_period = 73.8;
+    p.filename = L"output.bin";
+
+    for (int i = 1; i < argc; i++) {
+        std::wstring arg = argv[i];
+        auto getNext = [&]() -> std::wstring {
+            if (i + 1 < argc) return argv[++i];
+            return L"";
+            };
+
+        if (arg == L"--count" || arg == L"-n") p.serie_count = _wcstoui64(getNext().c_str(), nullptr, 10);
+        else if (arg == L"--min" || arg == L"-a") p.serie_min = _wcstoui64(getNext().c_str(), nullptr, 10);
+        else if (arg == L"--max" || arg == L"-b") p.serie_max = _wcstoui64(getNext().c_str(), nullptr, 10);
+        else if (arg == L"--output" || arg == L"-o") p.filename = getNext();
+        else if (arg == L"--period" || arg == L"-p") p.time_period = _wtof(getNext().c_str());
+        else if (arg == L"--type" || arg == L"-t") { std::wstring v = getNext(); p.output_double = (v == L"double" || v == L"d"); }
+        else if (arg == L"--format" || arg == L"-f") { std::wstring v = getNext(); p.binary_format = (v == L"bin" || v == L"b"); }
+        else if (arg == L"--size" || arg == L"-s") {
+            std::wstring v = getNext();
+            if (v == L"byte" || v == L"8")  p.number_size = NumberSize::Byte;
+            else if (v == L"word" || v == L"16") p.number_size = NumberSize::Word;
+            else                                   p.number_size = NumberSize::DWord;
+        }
+        else if (arg == L"--help" || arg == L"-h" || arg == L"/?") {
+            std::wcout << L"Rand++ CLI mode\n"
+                << L"Usage: Rand++.exe [options]\n\n"
+                << L"Options:\n"
+                << L"  -n, --count N       Number of values (default: 1000000)\n"
+                << L"  -a, --min N         Minimum value (default: 0)\n"
+                << L"  -b, --max N         Maximum value (default: 4294967295)\n"
+                << L"  -o, --output FILE   Output filename (default: output.bin)\n"
+                << L"  -t, --type TYPE     int or double (default: int)\n"
+                << L"  -f, --format FMT    txt or bin (default: bin)\n"
+                << L"  -s, --size SIZE     byte, word, dword (default: dword)\n"
+                << L"  -p, --period VAL    OPZ/LE period (default: 73.8)\n"
+                << L"  -h, --help          Show this help\n";
+            return 0;
+        }
+    }
+
+    // Resolve relative paths to executable directory
+    if (p.filename.find_first_of(L"\\/:") == std::wstring::npos)
+        p.filename = GetExecutableDirectory() + L"\\" + p.filename;
+
+    std::wcout << L"Generating " << p.serie_count << L" values"
+        << L" (type=" << (p.output_double ? L"double" : L"int")
+        << L", format=" << (p.binary_format ? L"bin" : L"txt")
+        << L", size=" << (p.number_size == NumberSize::Byte ? L"byte" :
+            p.number_size == NumberSize::Word ? L"word" : L"dword")
+        << L") -> " << p.filename << std::endl;
+
+    std::wstring errMsg;
+    if (GenerateFile(p, errMsg)) {
+        std::wcout << L"Done: " << p.filename << std::endl;
+        return 0;
+    }
+
+    if (errMsg == L"count")  std::wcerr << L"Error: count must be > 0" << std::endl;
+    else if (errMsg == L"minmax")  std::wcerr << L"Error: min must be < max" << std::endl;
+    else if (errMsg == L"file")   std::wcerr << L"Error: cannot open file" << std::endl;
+    else                          std::wcerr << L"Error: " << errMsg << std::endl;
+    return 1;
+}
+
+// ── Worker thread (GUI mode) ─────────────────────────────────────
 void GenerateThread(ThreadParams* params) {
     HWND hDlg = params->hDlg;
 
@@ -79,37 +230,34 @@ void GenerateThread(ThreadParams* params) {
                 static_cast<WPARAM>(processed * 100 / params->serie_count), 0);
         };
 
-    auto postError = [&](UINT stringID) {
-        if (!IsWindow(hDlg)) return;
-        std::wstring* pMsg = new std::wstring(LoadStr(stringID));
-        PostMessageW(hDlg, WM_TASK_ERROR, 0, reinterpret_cast<LPARAM>(pMsg));
-        };
-
+    std::wstring errMsg;
     try {
-        // ── Validation ──
-        if (params->serie_count == 0)
-            throw std::runtime_error("count");
-        if (params->serie_min >= params->serie_max)
-            throw std::runtime_error("minmax");
+        if (params->serie_count == 0) {
+            errMsg = L"count";
+            throw errMsg;
+        }
+        if (params->serie_min >= params->serie_max) {
+            errMsg = L"minmax";
+            throw errMsg;
+        }
 
-        // ── Initialize RNG ──
         RNG rng_perfect_var(static_cast<unsigned int>(time(nullptr)),
             params->time_period);
         RNGAbstract* rng_perfect = &rng_perfect_var;
         size_t period = rng_perfect->get_period();
 
-        // Update period display
         if (IsWindow(hDlg))
             SetDlgItemTextW(hDlg, IDC_STATIC_PERIOD, std::to_wstring(period).c_str());
 
         size_t processed = 0;
         const size_t updateInterval = params->serie_count / 100;
 
-        // ── Binary output ──
         if (params->binary_format) {
-            std::ofstream file(params->filename.c_str(), std::ios::binary);
-            if (!file.is_open())
-                throw std::runtime_error("file");
+            std::ofstream file(params->filename, std::ios::binary);
+            if (!file.is_open()) {
+                errMsg = L"file";
+                throw errMsg;
+            }
 
             if (params->output_double) {
                 for (size_t i = 0; i < params->serie_count; ++i) {
@@ -147,13 +295,13 @@ void GenerateThread(ThreadParams* params) {
                         postProgress(processed);
                 }
             }
-            file.close();
         }
-        // ── Text output ──
         else {
-            std::ofstream file(params->filename.c_str());
-            if (!file.is_open())
-                throw std::runtime_error("file");
+            std::ofstream file(params->filename);
+            if (!file.is_open()) {
+                errMsg = L"file";
+                throw errMsg;
+            }
 
             if (params->output_double)
                 file << std::fixed << std::setprecision(15);
@@ -179,14 +327,16 @@ void GenerateThread(ThreadParams* params) {
                 if (i < params->serie_count - 1)
                     file << "\n";
             }
-            file.close();
         }
     }
-    catch (const std::runtime_error& e) {
-        std::string what(e.what());
-        if (what == "count")  postError(IDS_MIN_SERIE_COUNT);
-        else if (what == "minmax") postError(IDS_MIN_MAX_CONDITION);
-        else if (what == "file")   postError(IDS_FILE_ERROR);
+    catch (const std::wstring& e) {
+        if (IsWindow(hDlg)) {
+            std::wstring* pMsg = new std::wstring(LoadStr(
+                e == L"count" ? IDS_MIN_SERIE_COUNT :
+                e == L"minmax" ? IDS_MIN_MAX_CONDITION :
+                IDS_FILE_ERROR));
+            PostMessageW(hDlg, WM_TASK_ERROR, 0, reinterpret_cast<LPARAM>(pMsg));
+        }
         delete params;
         return;
     }
@@ -217,7 +367,6 @@ INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) 
 
     switch (msg) {
 
-        // ── Init ──
     case WM_INITDIALOG: {
         hIcon = LoadIconW(g_hInstance, MAKEINTRESOURCEW(IDR_MAINFRAME));
         if (hIcon) {
@@ -225,14 +374,12 @@ INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) 
             SendMessageW(hDlg, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(hIcon));
         }
 
-        // System menu — "About"
         HMENU hSysMenu = GetSystemMenu(hDlg, FALSE);
         if (hSysMenu) {
             AppendMenuW(hSysMenu, MF_SEPARATOR, 0, nullptr);
             AppendMenuW(hSysMenu, MF_STRING, IDM_ABOUTBOX, LoadStr(IDS_ABOUTBOX).c_str());
         }
 
-        // Combo boxes
         const wchar_t* counts[] = {
             L"10", L"100", L"1000", L"10000",
             L"134217728", L"268435456", L"536870912", L"1668467902"
@@ -251,7 +398,6 @@ INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) 
         return TRUE;
     }
 
-                      // ── System menu ──
     case WM_SYSCOMMAND:
         if ((wParam & 0xFFF0) == IDM_ABOUTBOX) {
             DialogBoxW(g_hInstance, MAKEINTRESOURCEW(IDD_ABOUTBOX), hDlg, AboutDlgProc);
@@ -259,12 +405,10 @@ INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) 
         }
         break;
 
-        // ── F1 help ──
     case WM_HELP:
         DialogBoxW(g_hInstance, MAKEINTRESOURCEW(IDD_ABOUTBOX), hDlg, AboutDlgProc);
         return TRUE;
 
-        // ── Commands ──
     case WM_COMMAND:
         switch (LOWORD(wParam)) {
 
@@ -322,7 +466,6 @@ INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) 
         }
         break;
 
-        // ── Custom messages ──
     case WM_UPDATE_PROGRESS:
         SendDlgItemMessageW(hDlg, IDC_PROGRESS_BAR, PBM_SETPOS, wParam, 0);
         return TRUE;
@@ -341,7 +484,6 @@ INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) 
         return TRUE;
     }
 
-                      // ── Icon painting (minimized) ──
     case WM_PAINT:
         if (IsIconic(hDlg)) {
             PAINTSTRUCT ps;
@@ -368,9 +510,21 @@ INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) 
 }
 
 // ── Entry point ──────────────────────────────────────────────────
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int) {
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int) {
     g_hInstance = hInstance;
 
+    // CLI mode: if command line has arguments, run without GUI
+    int argc = 0;
+    LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+    if (argv && argc > 1) {
+        int ret = RunCLI(argc, argv);
+        LocalFree(argv);
+        return ret;
+    }
+    if (argv) LocalFree(argv);
+
+    // GUI mode
     INITCOMMONCONTROLSEX icc;
     icc.dwSize = sizeof(icc);
     icc.dwICC = ICC_PROGRESS_CLASS;

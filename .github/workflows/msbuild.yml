@@ -31,46 +31,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v6
 
-    - name: Install MFC (VC.ATLMFC)
-      shell: powershell
-      run: |
-        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-        $vsInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
-
-        if (-not (Test-Path $vsInstaller)) {
-          Write-Error "vs_installer.exe not found at: $vsInstaller"
-          exit 1
-        }
-
-        $vsPath = & $vswhere -latest -property installationPath
-        if (-not $vsPath) {
-          Write-Error "Visual Studio installation not found via vswhere"
-          exit 1
-        }
-
-        Write-Host "VS path: $vsPath"
-        Write-Host "Starting MFC installation (this takes 5-15 minutes)..."
-
-        $process = Start-Process -FilePath $vsInstaller `
-          -ArgumentList @(
-            "modify",
-            "--installPath", "`"$vsPath`"",
-            "--add", "Microsoft.VisualStudio.Component.VC.ATLMFC",
-            "--add", "Microsoft.VisualStudio.Component.VC.MFC.x86.x64",
-            "--quiet",
-            "--norestart",
-            "--wait"
-          ) -Wait -PassThru
-
-        Write-Host "Installer exit code: $($process.ExitCode)"
-
-        if ($process.ExitCode -ne 0) {
-          Write-Error "MFC installation failed with exit code $($process.ExitCode)"
-          exit 1
-        }
-
-        Write-Host "MFC installation completed successfully."
-
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v3
 

@@ -10,23 +10,3 @@
 
 #include "resource.h"		// основные символы
 
-
-// CRandApp:
-// Сведения о реализации этого класса: Rand++.cpp
-//
-
-class CRandApp : public CWinApp
-{
-public:
-	CRandApp();
-
-// Переопределение
-public:
-	virtual BOOL InitInstance();
-
-// Реализация
-
-	DECLARE_MESSAGE_MAP()
-};
-
-extern CRandApp theApp;

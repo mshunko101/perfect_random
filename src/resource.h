@@ -47,6 +47,8 @@
 #define IDC_STATIC_TYPE_DATA            1024
 #define IDC_COMBO2                      1026
 #define IDC_STATIC_PERIOD               1027
+#define IDC_STATIC                      -1
+
 
 // Next default values for new objects
 // 

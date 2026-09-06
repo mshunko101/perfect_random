@@ -42,13 +42,13 @@ jobs:
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
     - name: Build solution
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
     - name: Generate test data (CLI mode)
       run: |
         $outputFile = Join-Path $PWD "test_data.bin"
         Write-Host "Generating test data to: $outputFile"
-        .\src\x64\${{env.BUILD_CONFIGURATION}}\Rand++.exe -n 2000000 -f bin -s dword -o $outputFile
+        .\src\x64\${{env.BUILD_CONFIGURATION}}\Rand++.exe -n 500000 -f bin -s dword -o $outputFile
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -75,19 +75,34 @@ jobs:
 
     - name: Compress build output
       run: |
-        $outputPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
         $zipPath = "${{env.ARTIFACTS_DIR}}\perfect-random.zip"
 
-        if (Test-Path $outputPath) {
-            Write-Host "Копируем бинарные файлы в директорию артефактов"
-            Copy-Item -Path "$outputPath\*.exe" -Destination "${{env.ARTIFACTS_DIR}}" -Recurse -Force
-            Write-Host "Архивируем все файлы из директории артефактов в $zipPath"
-            Compress-Archive -Path "${{env.ARTIFACTS_DIR}}\*" -DestinationPath $zipPath -Force
-            Write-Host "Архив успешно создан: $zipPath"
-        } else {
-            Write-Error "Выходная директория не найдена: $outputPath"
+        # Ищем exe — сначала в ожидаемой директории, затем рекурсивно
+        $exeFiles = @()
+        $expectedPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
+        if (Test-Path $expectedPath) {
+            $exeFiles = Get-ChildItem -Path $expectedPath -Filter "*.exe" -Recurse
+        }
+        if ($exeFiles.Count -eq 0) {
+            Write-Host "Не найдено в $expectedPath — ищем рекурсивно по src..."
+            $exeFiles = Get-ChildItem -Path ".\src" -Filter "*.exe" -Recurse
+        }
+
+        if ($exeFiles.Count -eq 0) {
+            Write-Error "Ни одного .exe не найдено!"
             exit 1
         }
+
+        foreach ($f in $exeFiles) {
+            Write-Host "Найден: $($f.FullName)"
+            Copy-Item -Path $f.FullName -Destination "${{env.ARTIFACTS_DIR}}" -Force
+        }
+
+        Compress-Archive -Path "${{env.ARTIFACTS_DIR}}\*" -DestinationPath $zipPath -Force
+        Write-Host "Архив создан: $zipPath"
+        Write-Host "Содержимое архива:"
+        [System.IO.Compression.ZipFile]::OpenRead($zipPath).Entries |
+            ForEach-Object { Write-Host "  $($_.FullName)" }
 
     - name: Create Release and Upload Asset
       uses: softprops/action-gh-release@v3
@@ -103,7 +118,7 @@ jobs:
           **Версия:** v${{ github.run_number }}
           **Дата сборки:** ${{ github.event.head_commit.timestamp }}
           **Коммит:** ${{ github.sha }}
-        files: ${{env.ARTIFACTS_DIR}}perfect-random.zip
+        files: ${{env.ARTIFACTS_DIR}}/perfect-random.zip
         draft: false
         prerelease: false
 

@@ -1,6 +1,6 @@
-[![NIST SP 800-22](https://github.com/MSHUNKO/perfect_random/actions/workflows/msbuild.yml/badge.svg)](https://github.com/MSHUNKO/perfect_random/actions/workflows/msbuild.yml)
-[![Release](https://img.shields.io/github/v/release/MSHUNKO/perfect_random)](https://github.com/MSHUNKO/perfect_random/releases)
-[![License](https://img.shields.io/github/license/MSHUNKO/perfect_random)](LICENSE)
+[![NIST SP 800-22](https://github.com/MSHUNKO101/perfect_random/actions/workflows/msbuild.yml/badge.svg)](https://github.com/MSHUNKO101/perfect_random/actions/workflows/msbuild.yml)
+[![Release](https://img.shields.io/github/v/release/MSHUNKO101/perfect_random)](https://github.com/MSHUNKO101/perfect_random/releases)
+[![License](https://img.shields.io/github/license/MSHUNKO101/perfect_random)](LICENSE)
 
 
 

@@ -306,9 +306,9 @@ public:
         double mean_adjusted = meanCore.adjust(base);
         double current = fantasyCore.apply_fantasy(mean_adjusted);
 
-        // Клампинг в [0, 1) — убирает переполнение при касте в uint32_t
-        if (current < 0.0) current = 0.0;
-        if (current >= 1.0) current = 0.9999999999;
+        // Обёртка в [0, 1) через fmod — сохраняет равномерность
+        current = current - std::floor(current);
+
 
         return current;
     }

@@ -7,6 +7,7 @@ on:
       - 'src/**'
       - '**.sln'
       - '**.vcxproj'
+      - 'tests/**'
       - '.github/workflows/msbuild.yml'
   release:
     types: [created]
@@ -47,7 +48,7 @@ jobs:
       run: |
         $outputFile = Join-Path $PWD "test_data.bin"
         Write-Host "Generating test data to: $outputFile"
-        .\src\x64\${{env.BUILD_CONFIGURATION}}\Rand++.exe -n 250000 -f bin -s dword -o $outputFile
+        .\src\x64\${{env.BUILD_CONFIGURATION}}\Rand++.exe -n 500000 -f bin -s dword -o $outputFile
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -59,91 +60,8 @@ jobs:
         pip install sp80022suite numpy scipy
 
     - name: Run NIST statistical tests
-      shell: pwsh
       run: |
-        python -c @'
-        import sp80022suite
-        import sys
-        import os
-
-        test_file = os.path.join(os.getcwd(), "test_data.bin")
-        with open(test_file, "rb") as f:
-            data = f.read()
-
-        print(f"Read {len(data)} bytes from {test_file}")
-
-        # Convert to bit sequence as bytes (each byte is 0 or 1)
-        bits = bytes([(byte >> (7 - bit_pos)) & 1 for byte in data for bit_pos in range(8)])
-        bits = bits[:1000000]
-        print(f"Extracted {len(bits)} bits")
-
-        results = []
-
-        # 1-arg tests: fn(data)
-        one_arg_tests = [
-            ("Frequency",              sp80022suite.frequency),
-            ("Runs",                   sp80022suite.runs),
-            ("Longest Run of Ones",    sp80022suite.longest_run_of_ones),
-            ("Rank",                   sp80022suite.rank),
-            ("Universal",              sp80022suite.universal),
-            ("Cumulative Sums",        sp80022suite.cumulative_sums),
-            ("Random Excursions",      sp80022suite.random_excursions),
-            ("Random Excursions Var",  sp80022suite.random_excursions_variant),
-            ("Discrete Fourier",       sp80022suite.discrete_fourier_transform),
-        ]
-
-        for name, fn in one_arg_tests:
-            try:
-                p = fn(bits)
-                if isinstance(p, (tuple, list)):
-                    p = p[0]
-                p = float(p)
-                status = "PASS" if p >= 0.01 else "FAIL"
-                print(f"{name:30s}  p={p:.6f}  {status}")
-                results.append((name, p, status))
-            except Exception as e:
-                print(f"{name:30s}  ERROR: {e}")
-                results.append((name, None, "ERROR"))
-
-        # 2-arg tests: fn(data, param) — data FIRST, param SECOND
-        two_arg_tests = [
-            ("Block Frequency",          sp80022suite.block_frequency,                    128),
-            ("Non-Overlapping Template",  sp80022suite.non_overlapping_template_matchings, 9),
-            ("Overlapping Template",     sp80022suite.overlapping_template_matchings,    9),
-            ("Linear Complexity",         sp80022suite.linear_complexity,                  500),
-            ("Serial",                    sp80022suite.serial,                              16),
-            ("Approximate Entropy",       sp80022suite.approximate_entropy,                10),
-        ]
-
-        for name, fn, param in two_arg_tests:
-            try:
-                p = fn(bits, param)
-                if isinstance(p, (tuple, list)):
-                    p = p[0]
-                p = float(p)
-                status = "PASS" if p >= 0.01 else "FAIL"
-                print(f"{name:30s}  p={p:.6f}  {status}")
-                results.append((name, p, status))
-            except Exception as e:
-                print(f"{name:30s}  ERROR: {e}")
-                results.append((name, None, "ERROR"))
-
-        print()
-        failed = [r for r in results if r[2] != "PASS"]
-        passed = [r for r in results if r[2] == "PASS"]
-
-        print(f"Passed: {len(passed)} / {len(results)}")
-        if failed:
-            print(f"Failed: {len(failed)}")
-            for name, p, status in failed:
-                if p is not None:
-                    print(f"  {name}: p={p:.6f} ({status})")
-                else:
-                    print(f"  {name}: {status}")
-            sys.exit(1)
-        else:
-            print("All tests PASSED")
-        '@
+        python tests/run_nist_tests.py test_data.bin
 
     - name: Create artifacts directory
       run: |

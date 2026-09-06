@@ -79,7 +79,7 @@ jobs:
 
         results = []
 
-        # 1-arg tests (data only, as bytes of 0/1)
+        # 1-arg tests: fn(data)
         one_arg_tests = [
             ("Frequency",              sp80022suite.frequency),
             ("Runs",                   sp80022suite.runs),
@@ -105,19 +105,19 @@ jobs:
                 print(f"{name:30s}  ERROR: {e}")
                 results.append((name, None, "ERROR"))
 
-        # 2-arg tests (parameter + data)
+        # 2-arg tests: fn(data, param) — data FIRST, param SECOND
         two_arg_tests = [
             ("Block Frequency",          sp80022suite.block_frequency,                    128),
-            ("Non-Overlapping Template",  sp80022suite.non_overlapping_template_matchings, bytes([0]*8)),
-            ("Overlapping Template",     sp80022suite.overlapping_template_matchings,    bytes([1]*9)),
+            ("Non-Overlapping Template",  sp80022suite.non_overlapping_template_matchings, 9),
+            ("Overlapping Template",     sp80022suite.overlapping_template_matchings,    9),
             ("Linear Complexity",         sp80022suite.linear_complexity,                  500),
             ("Serial",                    sp80022suite.serial,                              16),
-            ("Approximate Entropy",       sp80022suite.approximate_entropy,                16),
+            ("Approximate Entropy",       sp80022suite.approximate_entropy,                10),
         ]
 
         for name, fn, param in two_arg_tests:
             try:
-                p = fn(param, bits)
+                p = fn(bits, param)
                 if isinstance(p, (tuple, list)):
                     p = p[0]
                 p = float(p)

@@ -48,7 +48,7 @@ jobs:
       run: |
         $outputFile = Join-Path $PWD "test_data.bin"
         Write-Host "Generating test data to: $outputFile"
-        .\src\x64\${{env.BUILD_CONFIGURATION}}\Rand++.exe -n 1000000 -p 42 -f bin -s byte -o  $outputFile
+        .\src\x64\${{env.BUILD_CONFIGURATION}}\Rand++.exe -n 134217728 -p 42 -f bin -s byte -o  $outputFile
 
     - name: Set up Python
       uses: actions/setup-python@v5

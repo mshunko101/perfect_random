@@ -125,6 +125,13 @@ jobs:
         [System.IO.Compression.ZipFile]::OpenRead($zipPath).Entries |
             ForEach-Object { Write-Host "  $($_.FullName)" }
 
+    - name: Calculate short commit hash
+      id: short-sha
+      run: |
+        $sha = "${{ github.sha }}"
+        $short = $sha.Substring(0, 7)
+        echo "SHORT_SHA=$short" >> $env:GITHUB_OUTPUT
+
     - name: Create Release and Upload Asset
       uses: softprops/action-gh-release@v3
       if: github.event_name == 'push'
@@ -138,7 +145,8 @@ jobs:
 
           **Версия:** v${{ github.run_number }}
           **Дата сборки:** ${{ github.event.head_commit.timestamp }}
-          **Коммит:** ${{ github.sha }}
+          **Коммит:** `${{ steps.short-sha.outputs.SHORT_SHA }}`
+          **Полный SHA:** ${{ github.sha }}
         files: ${{env.ARTIFACTS_DIR}}/perfect-random.zip
         draft: false
         prerelease: false

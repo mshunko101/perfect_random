@@ -1,6 +1,8 @@
 [![NIST SP 800-22](https://github.com/MSHUNKO101/perfect_random/actions/workflows/msbuild.yml/badge.svg)](https://github.com/MSHUNKO101/perfect_random/actions/workflows/msbuild.yml)
 [![Release](https://img.shields.io/github/v/release/MSHUNKO101/perfect_random)](https://github.com/MSHUNKO101/perfect_random/releases)
 [![License](https://img.shields.io/github/license/MSHUNKO101/perfect_random)](LICENSE)
+[![Beta](https://img.shields.io/badge/status-beta-orange)](https://github.com/MSHUNKO101/perfect_random/releases)
+[![Experimental](https://img.shields.io/badge/status-experimental-yellow)](https://github.com/MSHUNKO101/perfect_random)
 
 
 # CascadePRNG — генератор псевдослучайных чисел

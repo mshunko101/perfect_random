@@ -2,7 +2,8 @@
 #pragma once
 #define APPLICATION
 #include "pch.h"
-#include "randpp.h"
+#include "../randpp.h"
+#include <stdio.h>
 
 #include <windows.h>
 #include <commctrl.h>
@@ -15,6 +16,7 @@
 #include <sstream>
 
 #include "resource.h"
+#include <iostream>
 
 #pragma comment(lib, "comctl32.lib")
 
@@ -44,7 +46,7 @@ struct ThreadParams {
     unsigned long long serie_max;
     NumberSize number_size;
     std::wstring filename;
-    double time_period;
+    size_t N;          // шагов каскада между пермутациями
 };
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -75,7 +77,10 @@ bool GenerateFile(const ThreadParams& p, std::wstring& errMsg) {
         return false;
     }
 
-    RNG rng(static_cast<unsigned int>(time(nullptr)), p.time_period);
+    size_t N = p.N;
+    if (N < 1) N = 1;
+
+    CascadePRNG rng(static_cast<unsigned int>(time(nullptr)), N);
 
     if (p.binary_format) {
         std::ofstream file(p.filename, std::ios::binary);
@@ -86,14 +91,14 @@ bool GenerateFile(const ThreadParams& p, std::wstring& errMsg) {
 
         if (p.output_double) {
             for (size_t i = 0; i < p.serie_count; ++i) {
-                double r = rng.generate(static_cast<size_t>(p.number_size));
+                double r = rng.generate();
                 r = p.serie_min + r * (p.serie_max - p.serie_min);
                 file.write(reinterpret_cast<const char*>(&r), sizeof(r));
             }
         }
         else {
             for (size_t i = 0; i < p.serie_count; ++i) {
-                double r = rng.generate(static_cast<size_t>(p.number_size));
+                double r = rng.generate();
                 r = p.serie_min + r * (p.serie_max - p.serie_min);
                 switch (p.number_size) {
                 case NumberSize::Byte: {
@@ -126,7 +131,7 @@ bool GenerateFile(const ThreadParams& p, std::wstring& errMsg) {
             file << std::fixed << std::setprecision(15);
 
         for (size_t i = 0; i < p.serie_count; ++i) {
-            double r = rng.generate(static_cast<size_t>(p.number_size));
+            double r = rng.generate();
             r = p.serie_min + r * (p.serie_max - p.serie_min);
 
             if (p.output_double) {
@@ -156,7 +161,7 @@ int RunCLI(int argc, wchar_t* argv[]) {
     p.serie_min = 0;
     p.serie_max = 4294967295ULL;
     p.number_size = NumberSize::DWord;
-    p.time_period = 73.8;
+    p.N = 5;
     p.filename = L"output.bin";
 
     for (int i = 1; i < argc; i++) {
@@ -170,7 +175,7 @@ int RunCLI(int argc, wchar_t* argv[]) {
         else if (arg == L"--min" || arg == L"-a") p.serie_min = _wcstoui64(getNext().c_str(), nullptr, 10);
         else if (arg == L"--max" || arg == L"-b") p.serie_max = _wcstoui64(getNext().c_str(), nullptr, 10);
         else if (arg == L"--output" || arg == L"-o") p.filename = getNext();
-        else if (arg == L"--period" || arg == L"-p") p.time_period = _wtof(getNext().c_str());
+        else if (arg == L"--period" || arg == L"-p") p.N = static_cast<size_t>(_wtoi(getNext().c_str()));
         else if (arg == L"--type" || arg == L"-t") { std::wstring v = getNext(); p.output_double = (v == L"double" || v == L"d"); }
         else if (arg == L"--format" || arg == L"-f") { std::wstring v = getNext(); p.binary_format = (v == L"bin" || v == L"b"); }
         else if (arg == L"--size" || arg == L"-s") {
@@ -180,7 +185,7 @@ int RunCLI(int argc, wchar_t* argv[]) {
             else                                   p.number_size = NumberSize::DWord;
         }
         else if (arg == L"--help" || arg == L"-h" || arg == L"/?") {
-            std::wcout << L"Rand++ CLI mode\n"
+            std::wcout << L"Rand++ CLI mode (Cascade PRNG)\n"
                 << L"Usage: Rand++.exe [options]\n\n"
                 << L"Options:\n"
                 << L"  -n, --count N       Number of values (default: 1000000)\n"
@@ -190,7 +195,7 @@ int RunCLI(int argc, wchar_t* argv[]) {
                 << L"  -t, --type TYPE     int or double (default: int)\n"
                 << L"  -f, --format FMT    txt or bin (default: bin)\n"
                 << L"  -s, --size SIZE     byte, word, dword (default: dword)\n"
-                << L"  -p, --period VAL    OPZ/LE period (default: 73.8)\n"
+                << L"  -p, --period N      Cascade steps N (default: 5)\n"
                 << L"  -h, --help          Show this help\n";
             return 0;
         }
@@ -205,6 +210,7 @@ int RunCLI(int argc, wchar_t* argv[]) {
         << L", format=" << (p.binary_format ? L"bin" : L"txt")
         << L", size=" << (p.number_size == NumberSize::Byte ? L"byte" :
             p.number_size == NumberSize::Word ? L"word" : L"dword")
+        << L", N=" << p.N
         << L") -> " << p.filename << std::endl;
 
     std::wstring errMsg;
@@ -241,74 +247,76 @@ void GenerateThread(ThreadParams* params) {
             throw errMsg;
         }
 
-        RNG rng_perfect_var(static_cast<unsigned int>(time(nullptr)),
-            params->time_period);
-        RNGAbstract* rng_perfect = &rng_perfect_var;
-        size_t period = rng_perfect->get_period();
+        size_t N = params->N;
+        if (N < 1) N = 1;
 
+        CascadePRNG rng_perfect(
+            static_cast<unsigned int>(time(nullptr)), N);
+
+        // Период
+        size_t period = rng_perfect.get_period();
         if (IsWindow(hDlg))
-            SetDlgItemTextW(hDlg, IDC_STATIC_PERIOD, std::to_wstring(period).c_str());
+            SetDlgItemTextW(hDlg, IDC_STATIC_PERIOD,
+                std::to_wstring(period).c_str());
 
         size_t processed = 0;
         const size_t updateInterval = params->serie_count / 100;
 
         if (params->binary_format) {
             std::ofstream file(params->filename, std::ios::binary);
-            if (!file.is_open()) {
-                errMsg = L"file";
-                throw errMsg;
-            }
+            if (!file.is_open()) { errMsg = L"file"; throw errMsg; }
 
             if (params->output_double) {
                 for (size_t i = 0; i < params->serie_count; ++i) {
-                    double r = rng_perfect->generate(static_cast<size_t>(params->number_size));
-                    r = params->serie_min + r * (params->serie_max - params->serie_min);
-                    file.write(reinterpret_cast<const char*>(&r), sizeof(r));
-                    processed++;
-                    if (updateInterval > 0 && processed % updateInterval == 0)
+                    double r = rng_perfect.generate();
+                    r = params->serie_min +
+                        r * (params->serie_max - params->serie_min);
+                    file.write(reinterpret_cast<const char*>(&r),
+                        sizeof(r));
+                    if (++processed % updateInterval == 0)
                         postProgress(processed);
                 }
             }
             else {
                 for (size_t i = 0; i < params->serie_count; ++i) {
-                    double r = rng_perfect->generate(static_cast<size_t>(params->number_size));
-                    r = params->serie_min + r * (params->serie_max - params->serie_min);
+                    double r = rng_perfect.generate();
+                    r = params->serie_min +
+                        r * (params->serie_max - params->serie_min);
                     switch (params->number_size) {
                     case NumberSize::Byte: {
                         uint8_t v = static_cast<uint8_t>(r);
-                        file.write(reinterpret_cast<const char*>(&v), sizeof(v));
+                        file.write(reinterpret_cast<const char*>(&v),
+                            sizeof(v));
                         break;
                     }
                     case NumberSize::Word: {
                         uint16_t v = static_cast<uint16_t>(r);
-                        file.write(reinterpret_cast<const char*>(&v), sizeof(v));
+                        file.write(reinterpret_cast<const char*>(&v),
+                            sizeof(v));
                         break;
                     }
                     case NumberSize::DWord: {
                         uint32_t v = static_cast<uint32_t>(r);
-                        file.write(reinterpret_cast<const char*>(&v), sizeof(v));
+                        file.write(reinterpret_cast<const char*>(&v),
+                            sizeof(v));
                         break;
                     }
                     }
-                    processed++;
-                    if (updateInterval > 0 && processed % updateInterval == 0)
+                    if (++processed % updateInterval == 0)
                         postProgress(processed);
                 }
             }
         }
         else {
             std::ofstream file(params->filename);
-            if (!file.is_open()) {
-                errMsg = L"file";
-                throw errMsg;
-            }
-
+            if (!file.is_open()) { errMsg = L"file"; throw errMsg; }
             if (params->output_double)
                 file << std::fixed << std::setprecision(15);
 
             for (size_t i = 0; i < params->serie_count; ++i) {
-                double r = rng_perfect->generate(static_cast<size_t>(params->number_size));
-                r = params->serie_min + r * (params->serie_max - params->serie_min);
+                double r = rng_perfect.generate();
+                r = params->serie_min +
+                    r * (params->serie_max - params->serie_min);
 
                 if (params->output_double) {
                     file << r;
@@ -316,16 +324,17 @@ void GenerateThread(ThreadParams* params) {
                 else {
                     uint32_t value = static_cast<uint32_t>(r);
                     switch (params->number_size) {
-                    case NumberSize::Byte:  file << static_cast<uint8_t>(value);  break;
-                    case NumberSize::Word:  file << static_cast<uint16_t>(value); break;
-                    case NumberSize::DWord: file << value; break;
+                    case NumberSize::Byte:
+                        file << static_cast<uint8_t>(value); break;
+                    case NumberSize::Word:
+                        file << static_cast<uint16_t>(value); break;
+                    case NumberSize::DWord:
+                        file << value; break;
                     }
                 }
-                processed++;
-                if (updateInterval > 0 && processed % updateInterval == 0)
+                if (i < params->serie_count - 1) file << "\n";
+                if (++processed % updateInterval == 0)
                     postProgress(processed);
-                if (i < params->serie_count - 1)
-                    file << "\n";
             }
         }
     }
@@ -335,7 +344,8 @@ void GenerateThread(ThreadParams* params) {
                 e == L"count" ? IDS_MIN_SERIE_COUNT :
                 e == L"minmax" ? IDS_MIN_MAX_CONDITION :
                 IDS_FILE_ERROR));
-            PostMessageW(hDlg, WM_TASK_ERROR, 0, reinterpret_cast<LPARAM>(pMsg));
+            PostMessageW(hDlg, WM_TASK_ERROR, 0,
+                reinterpret_cast<LPARAM>(pMsg));
         }
         delete params;
         return;
@@ -391,7 +401,7 @@ INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) 
         for (auto s : maxes)
             SendDlgItemMessageW(hDlg, IDC_SERIE_MAX, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
 
-        SendDlgItemMessageW(hDlg, IDC_SERIES_PERIOD, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(L"73.8"));
+        SendDlgItemMessageW(hDlg, IDC_SERIES_PERIOD, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(L"5"));
 
         SetDlgItemTextW(hDlg, IDC_SERIE_MAX, L"0");
         SetDlgItemTextW(hDlg, IDC_SERIE_MIN, L"0");
@@ -431,7 +441,9 @@ INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) 
             p->filename = GetExecutableDirectory() + L"\\" + buf;
 
             GetDlgItemTextW(hDlg, IDC_SERIES_PERIOD, buf, 256);
-            p->time_period = _wtof(buf);
+            size_t N = static_cast<size_t>(_wtoi(buf));
+            if (N < 1) N = 1;
+            p->N = N;
 
             p->output_double = IsDlgButtonChecked(hDlg, IDC_TYPE_DOUBLE) == BST_CHECKED;
             p->binary_format = IsDlgButtonChecked(hDlg, IDC_TYPE_BINARY) == BST_CHECKED;

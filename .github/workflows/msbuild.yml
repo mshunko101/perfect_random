@@ -44,11 +44,33 @@ jobs:
     - name: Build solution
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
+    - name: Run C++ unit tests
+      run: |
+        $testExe = ".\src\x64\${{env.BUILD_CONFIGURATION}}\cpp_tests.exe"
+        if (-not (Test-Path $testExe)) {
+          Write-Host "cpp_tests.exe не найден в $testExe — ищем рекурсивно..."
+          $found = Get-ChildItem -Path ".\src" -Filter "cpp_tests.exe" -Recurse | Select-Object -First 1
+          if ($found) {
+            $testExe = $found.FullName
+            Write-Host "Найден: $testExe"
+          } else {
+            Write-Error "cpp_tests.exe не найден!"
+            exit 1
+          }
+        }
+        Write-Host "Running: $testExe"
+        & $testExe
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "C++ unit tests FAILED (exit code: $LASTEXITCODE)"
+          exit 1
+        }
+        Write-Host "C++ unit tests PASSED"
+
     - name: Generate test data (CLI mode)
       run: |
         $outputFile = Join-Path $PWD "test_data.bin"
         Write-Host "Generating test data to: $outputFile"
-        .\src\x64\${{env.BUILD_CONFIGURATION}}\Rand++.exe -a 0 -b 256 -n 134217728 -p 42 -f bin -s 8 -o  $outputFile
+        .\src\x64\${{env.BUILD_CONFIGURATION}}\Rand++.exe -a 0 -b 256 -n 134217728 -p 42 -f bin -s 8 -o $outputFile
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -77,7 +99,6 @@ jobs:
       run: |
         $zipPath = "${{env.ARTIFACTS_DIR}}\perfect-random.zip"
 
-        # Ищем exe — сначала в ожидаемой директории, затем рекурсивно
         $exeFiles = @()
         $expectedPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
         if (Test-Path $expectedPath) {

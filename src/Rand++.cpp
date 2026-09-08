@@ -155,13 +155,13 @@ bool GenerateFile(const ThreadParams& p, std::wstring& errMsg) {
 // ── CLI mode ─────────────────────────────────────────────────────
 int RunCLI(int argc, wchar_t* argv[]) {
     ThreadParams p;
-    p.serie_count = 1000000;
+    p.serie_count = 10000000;
     p.output_double = false;
     p.binary_format = true;
     p.serie_min = 0;
     p.serie_max = 4294967295ULL;
     p.number_size = NumberSize::DWord;
-    p.N = 5;
+    p.N = 42;
     p.filename = L"output.bin";
 
     for (int i = 1; i < argc; i++) {

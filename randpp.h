@@ -74,7 +74,7 @@ public:
 
     double generate() {
         step();
-        return (double)current_value() / (double)M;
+        return (double)current_value() / 4294967296.0;  // 2^32
     }
 
     // Сырое значение для битовых тестов (без потери точности double)

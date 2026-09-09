@@ -308,11 +308,11 @@ int main() {
     RUN_TEST(test_N_affects_sequence);
     RUN_TEST(test_period_exists);
 
-    std::cout << "\n═══════════════════════════════════════════\n";
-    std::cout << "  Total:  " << g_tests_run << "\n";
-    std::cout << "  Passed: " << g_tests_passed << "\n";
-    std::cout << "  Failed: " << g_tests_failed << "\n";
-    std::cout << "═══════════════════════════════════════════\n";
+    std::cout << "\n===========================================\n";
+    std::cout << "  Total:\t" << g_tests_run << "\n";
+    std::cout << "  Passed:\t" << g_tests_passed << "\n";
+    std::cout << "  Failed:\t" << g_tests_failed << "\n";
+    std::cout << "============================================\n";
 
     return g_tests_failed > 0 ? 1 : 0;
 }

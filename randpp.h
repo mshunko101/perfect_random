@@ -31,9 +31,27 @@ private:
     }
 
     // Смешивание всех трёх компонент для вывода
-    uint32_t current_value() const {
-        return (uint32_t)((a * b + c) % M);
+private:
+    static uint32_t rotl32(uint32_t x, uint32_t r) {
+        r &= 31;
+        return (x << r) | (x >> ((32 - r) & 31));
     }
+
+    uint32_t current_value() const {
+        // 1. Полные 32 бита (XOR + add, не mod M)
+        uint32_t x = (uint32_t)((a ^ b) + c);
+        // 2. State-dependent rotation (как у PCG — разрушает решётку)
+        uint32_t rot = (uint32_t)(a ^ b ^ c) & 31;
+        x = rotl32(x, rot);
+        // 3. MurmurHash3 finalizer (перемешивание бит)
+        x ^= x >> 16;
+        x *= 0x85EBCA6Bu;
+        x ^= x >> 13;
+        x *= 0xC2B2AE35u;
+        x ^= x >> 16;
+        return x;
+    }
+
 
 public:
     CascadePRNG(uint64_t s = 1, size_t n = 5)

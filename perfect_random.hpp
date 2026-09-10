@@ -222,15 +222,17 @@ public:
     MeanCore(double m, uint64_t s) : mean(m), rng(s, 5) {}
 
     // ── MeanCore::adjust — исправленная нормализация ──
+    // MeanCore::adjust — ЗАМЕНИТЬ:
     double adjust(unsigned int base) {
-        constexpr double M = 2147483647.0;
-        double normalized = (double)base / M;
-        double jitter = (rng.generate() - 0.5) * 0.1;
+        double normalized = (double)base / 4294967296.0;
+        double jitter = (rng.generate() - 0.5) * 0.02;
         double result = normalized * mean + jitter;
-        if (result < 0.0) result = 0.0;
-        if (result >= 1.0) result = 0.999999999;
+        // БЫЛО: clamp → spike на 0.0 и 0.999
+        // СТАЛО: wrap — равномерное распределение сохраняется
+        result = result - std::floor(result);
         return result;
     }
+
 
 };
 
@@ -265,6 +267,7 @@ public:
         }
     }
 
+    // FantasyCore::apply_fantasy — ЗАМЕНИТЬ конец метода:
     double apply_fantasy(double base) {
         for (const auto& dim : dimensions) {
             if ((rng.generate_raw() & 1) == 0) {
@@ -274,8 +277,12 @@ public:
                 base += dim[1] * 0.01;
             }
         }
+        // БЫЛО: if (base < 0.0) base = 0.0; if (base >= 1.0) base = 0.999999999;
+        // СТАЛО: wrap
+        base = base - std::floor(base);
         return base;
     }
+
 };
 
 // ═══════════════════════════════════════════════════════════════

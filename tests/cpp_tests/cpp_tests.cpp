@@ -1,5 +1,5 @@
 ﻿// cascade_test.cpp
-#include "../../randpp.h"
+#include "../../cascade_prng.hpp"
 #include <iostream>
 #include <iomanip>
 #include <cmath>

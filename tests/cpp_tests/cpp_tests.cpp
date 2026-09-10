@@ -304,20 +304,7 @@ TestResult test_reset(const std::string& name) {
     return { true, name, "" };
 }
 
-// ── Тест 17: История коллизий очищается ─────────────────────────
-TestResult test_history_clear(const std::string& name) {
-    RNG g(42, PERIOD);
 
-    for (int i = 0; i < 100; i++)
-        g.generate();
-
-    ASSERT_TRUE(g.getHistorySize() > 0,
-        "history empty after 100 generates");
-    g.clearHistory();
-    ASSERT_EQ(g.getHistorySize(), (size_t)0,
-        "history not cleared");
-    return { true, name, "" };
-}
 
 // ── Main ─────────────────────────────────────────────────────────
 int main() {

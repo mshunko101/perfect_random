@@ -198,8 +198,8 @@ private:
 public:
     AssociativityCore(uint64_t s) : rng(s, 48) {}
 
-    unsigned int generate() {
-        return rng.generate_raw();
+    double generate() {
+        return rng.generate();
     }
 
     uint64_t state_seed() {
@@ -224,7 +224,7 @@ public:
     // ── MeanCore::adjust — исправленная нормализация ──
     // MeanCore::adjust — ЗАМЕНИТЬ:
     double adjust(unsigned int base) {
-        return (base / static_cast<double>(UINT_MAX)) * mean + rng.generate() * 0.1;
+        return (base / static_cast<double>(UINT_MAX)) * mean + rng.generate();
     }
 
 };
@@ -260,7 +260,7 @@ public:
         }
     }
 
-    // FantasyCore::apply_fantasy — ЗАМЕНИТЬ конец метода:
+    // FantasyCore::apply_fantasy  
     double apply_fantasy(double base) {
         for (const auto& dim : dimensions) {
             if (rng.generate() == 0) {
@@ -288,7 +288,7 @@ private:
     FantasyCore        fantasyCore;
     std::unordered_set<unsigned int> history;
     static constexpr int MAX_RETRIES = 49;
-    static constexpr int MAX_HISTORY_SIZE = 49;
+    size_t MAX_HISTORY_SIZE;
     size_t             inc_counter;
     size_t             inc_max;
 
@@ -313,6 +313,7 @@ public:
     {
         RotationCalculator rc(period);
         inc_max = (size_t)round((rc.getPeriod() * 365.25 * 24 * 3600) / 8.0);
+        MAX_HISTORY_SIZE = inc_max;
     }
 
     size_t get_period()  {
@@ -337,9 +338,9 @@ public:
         }
         inc_counter += 8;
 
-        unsigned int base = assocCore.generate();
+        double base = assocCore.generate();
         int retries = 0;
-        unsigned int previous_base = base;
+        static unsigned int previous_base = base;
 
         while (isCollision(base) && retries < MAX_RETRIES) {
             previous_base = base;
@@ -365,7 +366,6 @@ public:
 
         double mean_adjusted = meanCore.adjust(base);
         double current = fantasyCore.apply_fantasy(mean_adjusted);
-
         return current;
     }
 

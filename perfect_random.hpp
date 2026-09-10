@@ -60,7 +60,7 @@ private:
     }
 
 public:
-    CascadePRNG(uint64_t s = 1, size_t n = 5)
+    CascadePRNG(uint64_t s = 1, size_t n = 49)
         : counter(0), out_idx(0), N(n < 1 ? 1 : n)
     {
         seed(s);
@@ -183,7 +183,7 @@ struct SeedCascade {
     static constexpr uint64_t SEED_DELTA = 0x9E3779B97F4A7C15ULL;
 
     static uint64_t derive(uint64_t master_seed, int index) {
-        CascadePRNG factory(master_seed + index * SEED_DELTA, 5);
+        CascadePRNG factory(master_seed + index * SEED_DELTA, 49);
         return (uint64_t)factory.generate_raw() << 32 | factory.generate_raw();
     }
 };
@@ -196,7 +196,7 @@ class AssociativityCore {
 private:
     CascadePRNG rng;
 public:
-    AssociativityCore(uint64_t s) : rng(s, 5) {}
+    AssociativityCore(uint64_t s) : rng(s, 48) {}
 
     unsigned int generate() {
         return rng.generate_raw();
@@ -219,20 +219,13 @@ private:
     double mean;
     CascadePRNG rng;
 public:
-    MeanCore(double m, uint64_t s) : mean(m), rng(s, 5) {}
+    MeanCore(double m, uint64_t s) : mean(m), rng(s, 49) {}
 
     // ── MeanCore::adjust — исправленная нормализация ──
     // MeanCore::adjust — ЗАМЕНИТЬ:
     double adjust(unsigned int base) {
-        double normalized = (double)base / 4294967296.0;
-        double jitter = (rng.generate() - 0.5) * 0.02;
-        double result = normalized * mean + jitter;
-        // БЫЛО: clamp → spike на 0.0 и 0.999
-        // СТАЛО: wrap — равномерное распределение сохраняется
-        result = result - std::floor(result);
-        return result;
+        return (base / static_cast<double>(UINT_MAX)) * mean + rng.generate() * 0.1;
     }
-
 
 };
 
@@ -246,7 +239,7 @@ private:
 public:
     std::vector<std::vector<int>> dimensions;
 
-    FantasyCore(uint64_t s) : rng(s, 5) {}
+    FantasyCore(uint64_t s) : rng(s, 50) {}
 
     void add_collision(unsigned int a, unsigned int b) {
         if (a == b) return;
@@ -270,16 +263,13 @@ public:
     // FantasyCore::apply_fantasy — ЗАМЕНИТЬ конец метода:
     double apply_fantasy(double base) {
         for (const auto& dim : dimensions) {
-            if ((rng.generate_raw() & 1) == 0) {
+            if (rng.generate() == 0) {
                 base += dim[0] * 0.01;
             }
             else {
                 base += dim[1] * 0.01;
             }
         }
-        // БЫЛО: if (base < 0.0) base = 0.0; if (base >= 1.0) base = 0.999999999;
-        // СТАЛО: wrap
-        base = base - std::floor(base);
         return base;
     }
 
@@ -289,11 +279,8 @@ public:
 //  Главный класс RNG
 // ═══════════════════════════════════════════════════════════════
 
-#ifdef APPLICATION
-class RNG : public RNGAbstract {
-#else
 class RNG {
-#endif
+
 private:
     uint64_t           master_seed;
     AssociativityCore  assocCore;
@@ -342,13 +329,13 @@ public:
         fantasyCore.add_collision(a, b);
     }
 
-    double generate(size_t size) {
+    double generate() {
         if (inc_counter >= inc_max) {
             uint64_t fresh_seed = assocCore.state_seed();
             reseed(fresh_seed ^ master_seed);
             inc_counter = 0;
         }
-        inc_counter += size;
+        inc_counter += 8;
 
         unsigned int base = assocCore.generate();
         int retries = 0;

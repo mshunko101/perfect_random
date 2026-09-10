@@ -1,7 +1,6 @@
 ﻿// Rand++.cpp — WinAPI version (no MFC) + CLI mode
 #include "pch.h"
 #include "../perfect_random.hpp"
-
 #include <windows.h>
 #include <commctrl.h>
 #include <string>
@@ -93,7 +92,7 @@ static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
         if (!file.is_open()) { errMsg = L"file"; return false; }
 
         for (size_t i = 0; i < p.serie_count; ++i) {
-            double r = rng.generate(pull_size);
+            double r = rng.generate();
             r = p.serie_min + r * (p.serie_max - p.serie_min);
 
             if (p.output_double) {
@@ -131,7 +130,7 @@ static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
             file << std::fixed << std::setprecision(15);
 
         for (size_t i = 0; i < p.serie_count; ++i) {
-            double r = rng.generate(pull_size);
+            double r = rng.generate();
             r = p.serie_min + r * (p.serie_max - p.serie_min);
 
             if (p.output_double) {

@@ -223,7 +223,7 @@ public:
 
     // ── MeanCore::adjust — исправленная нормализация ──
     // MeanCore::adjust — ЗАМЕНИТЬ:
-    double adjust(unsigned int base) {
+    double adjust(double base) {
         return (base / static_cast<double>(UINT_MAX)) * mean + rng.generate();
     }
 

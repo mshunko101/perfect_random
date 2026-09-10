@@ -1,6 +1,6 @@
 ﻿// Rand++.cpp — WinAPI version (no MFC) + CLI mode
 #include "pch.h"
-#include "../randpp.h"
+#include "../cascade_prng.hpp"
 
 #include <windows.h>
 #include <commctrl.h>

@@ -288,7 +288,7 @@ private:
     FantasyCore        fantasyCore;
     std::unordered_set<unsigned int> history;
     static constexpr int MAX_RETRIES = 49;
-    size_t MAX_HISTORY_SIZE;
+    static constexpr int MAX_HISTORY_SIZE = 49;
     size_t             inc_counter;
     size_t             inc_max;
 
@@ -313,7 +313,6 @@ public:
     {
         RotationCalculator rc(period);
         inc_max = (size_t)round((rc.getPeriod() * 365.25 * 24 * 3600) / 8.0);
-        MAX_HISTORY_SIZE = inc_max;
     }
 
     size_t get_period()  {

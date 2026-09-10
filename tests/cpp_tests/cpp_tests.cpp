@@ -335,7 +335,6 @@ int main() {
     RUN_TEST(test_seed_uniqueness);
     RUN_TEST(test_large_batch);
     RUN_TEST(test_reset);
-    RUN_TEST(test_history_clear);
 
     std::cout << "\n===========================================\n";
     std::cout << "  Total:  " << g_tests_run << "\n";

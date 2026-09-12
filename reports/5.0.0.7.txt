@@ -1,0 +1,263 @@
+============================================================
+  Parallel BigCrush -- perfect_random
+  Tests: 106  x  2 (fwd+rev)  =  212 tasks
+  Workers: 5  Seed: 49  Period: 73.8
+  Repeats: 1
+============================================================
+  [OK]   #  3 FWD  smarsa_CollisionOver N=30 n=2e7 r=0 d=2^21 t=2  (284s)
+  [OK]   #  1 FWD  smarsa_SerialOver N=1 n=10^9 r=0 d=256 t=3  (295s)
+  [OK]   #  1 REV  smarsa_SerialOver N=1 n=10^9 r=0 d=256 t=3  (296s)
+  [OK]   #  2 FWD  smarsa_SerialOver N=1 n=10^9 r=22 d=256 t=3  (299s)
+  [OK]   #  2 REV  smarsa_SerialOver N=1 n=10^9 r=22 d=256 t=3  (300s)
+  [OK]   #  3 REV  smarsa_CollisionOver N=30 n=2e7 r=0 d=2^21 t=2  (602s)
+  [OK]   #  4 FWD  smarsa_CollisionOver N=30 n=2e7 r=9 d=2^21 t=2  (607s)
+  [OK]   #  4 REV  smarsa_CollisionOver N=30 n=2e7 r=9 d=2^21 t=2  (608s)
+  [OK]   #  5 REV  smarsa_CollisionOver N=30 n=2e7 r=0 d=2^14 t=3  (655s)
+  [OK]   #  5 FWD  smarsa_CollisionOver N=30 n=2e7 r=0 d=2^14 t=3  (656s)
+  [OK]   #  6 FWD  smarsa_CollisionOver N=30 n=2e7 r=16 d=2^14 t=3  (979s)
+  [OK]   #  7 FWD  smarsa_CollisionOver N=30 n=2e7 r=0 d=64 t=7  (983s)
+  [OK]   #  6 REV  smarsa_CollisionOver N=30 n=2e7 r=16 d=2^14 t=3  (986s)
+  [OK]   #  7 REV  smarsa_CollisionOver N=30 n=2e7 r=0 d=64 t=7  (1033s)
+  [OK]   #  8 FWD  smarsa_CollisionOver N=30 n=2e7 r=24 d=64 t=7  (1035s)
+  [OK]   #  8 REV  smarsa_CollisionOver N=30 n=2e7 r=24 d=64 t=7  (1352s)
+  [OK]   #  9 REV  smarsa_CollisionOver N=30 n=2e7 r=0 d=8 t=14  (1352s)
+  [OK]   #  9 FWD  smarsa_CollisionOver N=30 n=2e7 r=0 d=8 t=14  (1354s)
+  [OK]   # 10 REV  smarsa_CollisionOver N=30 n=2e7 r=27 d=8 t=14  (1397s)
+  [OK]   # 10 FWD  smarsa_CollisionOver N=30 n=2e7 r=27 d=8 t=14  (1404s)
+  [OK]   # 12 FWD  smarsa_CollisionOver N=30 n=2e7 r=28 d=2^28 t=2  (1702s)
+  [OK]   # 11 REV  smarsa_CollisionOver N=30 n=2e7 r=0 d=2^28 t=2  (1702s)
+  [OK]   # 11 FWD  smarsa_CollisionOver N=30 n=2e7 r=0 d=2^28 t=2  (1704s)
+  [OK]   # 12 REV  smarsa_CollisionOver N=30 n=2e7 r=28 d=2^28 t=2  (1741s)
+  [OK]   # 13 FWD  smarsa_CollisionOver N=30 n=2e7 r=0 d=4 t=21  (1962s)
+  [OK]   # 14 REV  smarsa_CollisionOver N=30 n=2e7 r=28 d=4 t=21  (2004s)
+  [OK]   # 14 FWD  smarsa_CollisionOver N=30 n=2e7 r=28 d=4 t=21  (2004s)
+  [OK]   # 13 REV  smarsa_CollisionOver N=30 n=2e7 r=0 d=4 t=21  (2251s)
+  [OK]   # 15 FWD  smarsa_BirthdaySpacings N=20 n=3e7 r=14 d=2^16 t=4 p=1  (2321s)
+  [OK]   # 15 REV  smarsa_BirthdaySpacings N=20 n=3e7 r=14 d=2^16 t=4 p=1  (2547s)
+  [OK]   # 16 REV  smarsa_BirthdaySpacings N=20 n=2e7 r=0 d=512 t=7 p=1  (2628s)
+  [OK]   # 16 FWD  smarsa_BirthdaySpacings N=20 n=2e7 r=0 d=512 t=7 p=1  (2629s)
+  [OK]   # 17 FWD  smarsa_BirthdaySpacings N=20 n=2e7 r=7 d=512 t=7 p=1  (2882s)
+  [OK]   # 17 REV  smarsa_BirthdaySpacings N=20 n=2e7 r=7 d=512 t=7 p=1  (2951s)
+  [OK]   # 18 FWD  smarsa_BirthdaySpacings N=20 n=3e7 r=14 d=256 t=8 p=1  (3620s)
+  [OK]   # 19 FWD  smarsa_BirthdaySpacings N=20 n=3e7 r=22 d=256 t=8 p=1  (3701s)
+  [OK]   # 18 REV  smarsa_BirthdaySpacings N=20 n=3e7 r=14 d=256 t=8 p=1  (3703s)
+  [OK]   # 19 REV  smarsa_BirthdaySpacings N=20 n=3e7 r=22 d=256 t=8 p=1  (3949s)
+  [OK]   # 22 FWD  snpair_ClosePairs N=30 n=6e6 r=0 t=3 p=0 m=30  (4176s)
+  [OK]   # 22 REV  snpair_ClosePairs N=30 n=6e6 r=0 t=3 p=0 m=30  (4399s)
+  [OK]   # 23 FWD  snpair_ClosePairs N=20 n=4e6 r=0 t=5 p=0 m=30  (4558s)
+  [OK]   # 23 REV  snpair_ClosePairs N=20 n=4e6 r=0 t=5 p=0 m=30  (4719s)
+  [OK]   # 24 FWD  snpair_ClosePairs N=10 n=3e6 r=0 t=9 p=0 m=30  (4888s)
+  [OK]   # 20 FWD  smarsa_BirthdaySpacings N=20 n=3e7 r=0 d=16 t=16 p=1  (4963s)
+  [OK]   # 24 REV  snpair_ClosePairs N=10 n=3e6 r=0 t=9 p=0 m=30  (5054s)
+  [OK]   # 25 FWD  snpair_ClosePairs N=5 n=2e6 r=0 t=16 p=0 m=30  (5122s)
+  [OK]   # 25 REV  snpair_ClosePairs N=5 n=2e6 r=0 t=16 p=0 m=30  (5216s)
+  [OK]   # 20 REV  smarsa_BirthdaySpacings N=20 n=3e7 r=0 d=16 t=16 p=1  (5630s)
+  [OK]   # 21 FWD  smarsa_BirthdaySpacings N=20 n=3e7 r=26 d=16 t=16 p=1  (5723s)
+  [OK]   # 21 REV  smarsa_BirthdaySpacings N=20 n=3e7 r=26 d=16 t=16 p=1  (5731s)
+  [OK]   # 26 FWD  sknuth_SimpPoker N=1 n=4e8 r=0 d=8 k=8  (5794s)
+  [OK]   # 26 REV  sknuth_SimpPoker N=1 n=4e8 r=0 d=8 k=8  (5892s)
+  [OK]   # 27 FWD  sknuth_SimpPoker N=1 n=4e8 r=27 d=8 k=8  (6316s)
+  [OK]   # 28 FWD  sknuth_SimpPoker N=1 n=1e8 r=0 d=32 k=32  (6406s)
+  [OK]   # 27 REV  sknuth_SimpPoker N=1 n=4e8 r=27 d=8 k=8  (6408s)
+  [OK]   # 28 REV  sknuth_SimpPoker N=1 n=1e8 r=0 d=32 k=32  (6469s)
+  [OK]   # 29 FWD  sknuth_SimpPoker N=1 n=1e8 r=25 d=32 k=32  (6578s)
+  [OK]   # 29 REV  sknuth_SimpPoker N=1 n=1e8 r=25 d=32 k=32  (6998s)
+  [OK]   # 30 FWD  sknuth_CouponCollector N=1 n=2e8 r=0 d=8  (7320s)
+  [OK]   # 30 REV  sknuth_CouponCollector N=1 n=2e8 r=0 d=8  (7324s)
+  [OK]   # 31 FWD  sknuth_CouponCollector N=1 n=2e8 r=10 d=8  (7392s)
+  [OK]   # 31 REV  sknuth_CouponCollector N=1 n=2e8 r=10 d=8  (7506s)
+  [OK]   # 32 FWD  sknuth_CouponCollector N=1 n=2e8 r=20 d=8  (7917s)
+  [OK]   # 33 FWD  sknuth_CouponCollector N=1 n=2e8 r=27 d=8  (8252s)
+  [OK]   # 32 REV  sknuth_CouponCollector N=1 n=2e8 r=20 d=8  (8253s)
+  [OK]   # 33 REV  sknuth_CouponCollector N=1 n=2e8 r=27 d=8  (8320s)
+  [OK]   # 34 FWD  sknuth_Gap N=1 n=5e8 r=0 a=0 b=1/16  (9127s)
+  [OK]   # 34 REV  sknuth_Gap N=1 n=5e8 r=0 a=0 b=1/16  (9559s)
+  [OK]   # 35 FWD  sknuth_Gap N=1 n=3e8 r=25 a=0 b=1/32  (10225s)
+  [OK]   # 35 REV  sknuth_Gap N=1 n=3e8 r=25 a=0 b=1/32  (10226s)
+  [FAIL] # 36 FWD  sknuth_Gap N=1 n=1e8 r=0 a=0 b=1/128
+  [OK]   # 38 FWD  sknuth_Run N=5 n=1e9 r=0 Up=false  (11271s)
+  [FAIL] # 37 FWD  sknuth_Gap N=1 n=1e7 r=20 a=0 b=1/1024
+  [FAIL] # 36 REV  sknuth_Gap N=1 n=1e8 r=0 a=0 b=1/128
+  [OK]   # 38 REV  sknuth_Run N=5 n=1e9 r=0 Up=false  (11971s)
+  [OK]   # 40 FWD  sknuth_Permutation N=1 n=1e9 r=0 t=3  (12320s)
+  [FAIL] # 37 REV  sknuth_Gap N=1 n=1e7 r=20 a=0 b=1/1024
+  [OK]   # 40 REV  sknuth_Permutation N=1 n=1e9 r=0 t=3  (12592s)
+  [OK]   # 42 FWD  sknuth_Permutation N=1 n=5e8 r=0 t=7  (13321s)
+  [OK]   # 41 FWD  sknuth_Permutation N=1 n=1e9 r=0 t=5  (13359s)
+  [OK]   # 41 REV  sknuth_Permutation N=1 n=1e9 r=0 t=5  (13364s)
+  [OK]   # 39 FWD  sknuth_Run N=5 n=1e9 r=15 Up=true  (13390s)
+  [OK]   # 39 REV  sknuth_Run N=5 n=1e9 r=15 Up=true  (13758s)
+  [OK]   # 42 REV  sknuth_Permutation N=1 n=5e8 r=0 t=7  (14050s)
+  [OK]   # 43 FWD  sknuth_Permutation N=1 n=5e8 r=10 t=10  (14460s)
+  [OK]   # 43 REV  sknuth_Permutation N=1 n=5e8 r=10 t=10  (14468s)
+  [OK]   # 44 FWD  sknuth_CollisionPermut N=20 n=2e7 r=0 t=14  (14684s)
+  [OK]   # 44 REV  sknuth_CollisionPermut N=20 n=2e7 r=0 t=14  (15038s)
+  [OK]   # 46 FWD  sknuth_MaxOft N=40 n=1e7 r=0 d=1e5 t=8  (15175s)
+  [OK]   # 45 FWD  sknuth_CollisionPermut N=20 n=2e7 r=10 t=14  (15347s)
+  [OK]   # 46 REV  sknuth_MaxOft N=40 n=1e7 r=0 d=1e5 t=8  (15397s)
+  [OK]   # 45 REV  sknuth_CollisionPermut N=20 n=2e7 r=10 t=14  (15761s)
+  [OK]   # 47 FWD  sknuth_MaxOft N=30 n=1e7 r=0 d=1e5 t=16  (16052s)
+  [OK]   # 47 REV  sknuth_MaxOft N=30 n=1e7 r=0 d=1e5 t=16  (16192s)
+  [OK]   # 48 FWD  sknuth_MaxOft N=20 n=1e7 r=0 d=1e5 t=24  (16348s)
+  [OK]   # 48 REV  sknuth_MaxOft N=20 n=1e7 r=0 d=1e5 t=24  (16395s)
+  [OK]   # 50 FWD  svaria_SampleProd N=40 n=1e7 r=0 t=8  (16879s)
+  [OK]   # 50 REV  svaria_SampleProd N=40 n=1e7 r=0 t=8  (17033s)
+  [OK]   # 51 FWD  svaria_SampleProd N=20 n=1e7 r=0 t=16  (17057s)
+  [OK]   # 49 FWD  sknuth_MaxOft N=20 n=1e7 r=0 d=1e5 t=32  (17078s)
+  [OK]   # 53 FWD  svaria_SampleMean N=2e7 n=30 r=0  (17204s)
+  [OK]   # 53 REV  svaria_SampleMean N=2e7 n=30 r=0  (17330s)
+  [OK]   # 49 REV  sknuth_MaxOft N=20 n=1e7 r=0 d=1e5 t=32  (17363s)
+  [OK]   # 54 FWD  svaria_SampleMean N=2e7 n=30 r=10  (17458s)
+  [OK]   # 54 REV  svaria_SampleMean N=2e7 n=30 r=10  (17490s)
+  [OK]   # 51 REV  svaria_SampleProd N=20 n=1e7 r=0 t=16  (17543s)
+  [OK]   # 55 FWD  svaria_SampleCorr N=1 n=2e9 r=0 k=1  (17866s)
+  [OK]   # 55 REV  svaria_SampleCorr N=1 n=2e9 r=0 k=1  (17899s)
+  [OK]   # 56 FWD  svaria_SampleCorr N=1 n=2e9 r=0 k=2  (17950s)
+  [OK]   # 52 FWD  svaria_SampleProd N=20 n=1e7 r=0 t=24  (18021s)
+  [OK]   # 52 REV  svaria_SampleProd N=20 n=1e7 r=0 t=24  (18052s)
+  [OK]   # 56 REV  svaria_SampleCorr N=1 n=2e9 r=0 k=2  (18274s)
+  [OK]   # 57 FWD  svaria_AppearanceSpacings N=1 Q=1e7 K=1e9 r=0 s=3 L=15  (18934s)
+  [OK]   # 57 REV  svaria_AppearanceSpacings N=1 Q=1e7 K=1e9 r=0 s=3 L=15  (18993s)
+  [OK]   # 58 FWD  svaria_AppearanceSpacings N=1 Q=1e7 K=1e9 r=27 s=3 L=15  (19055s)
+  [OK]   # 58 REV  svaria_AppearanceSpacings N=1 Q=1e7 K=1e9 r=27 s=3 L=15  (19091s)
+  [OK]   # 59 FWD  svaria_WeightDistrib N=1 n=2e7 r=0 k=256 a=0 b=1/4  (19304s)
+  [OK]   # 59 REV  svaria_WeightDistrib N=1 n=2e7 r=0 k=256 a=0 b=1/4  (19975s)
+  [OK]   # 60 FWD  svaria_WeightDistrib N=1 n=2e7 r=20 k=256 a=0 b=1/4  (20045s)
+  [OK]   # 60 REV  svaria_WeightDistrib N=1 n=2e7 r=20 k=256 a=0 b=1/4  (20102s)
+  [OK]   # 61 FWD  svaria_WeightDistrib N=1 n=2e7 r=28 k=256 a=0 b=1/4  (20153s)
+  [OK]   # 61 REV  svaria_WeightDistrib N=1 n=2e7 r=28 k=256 a=0 b=1/4  (20352s)
+  [OK]   # 62 FWD  svaria_WeightDistrib N=1 n=2e7 r=0 k=256 a=0 b=1/16  (21023s)
+  [OK]   # 62 REV  svaria_WeightDistrib N=1 n=2e7 r=0 k=256 a=0 b=1/16  (21088s)
+  [OK]   # 63 FWD  svaria_WeightDistrib N=1 n=2e7 r=10 k=256 a=0 b=1/16  (21150s)
+  [OK]   # 63 REV  svaria_WeightDistrib N=1 n=2e7 r=10 k=256 a=0 b=1/16  (21222s)
+  [OK]   # 64 FWD  svaria_WeightDistrib N=1 n=2e7 r=26 k=256 a=0 b=1/16  (21400s)
+  [OK]   # 66 FWD  smarsa_MatrixRank N=10 n=1e6 r=0 s=5 L=k=30  (21642s)
+  [OK]   # 66 REV  smarsa_MatrixRank N=10 n=1e6 r=0 s=5 L=k=30  (21822s)
+  [OK]   # 64 REV  svaria_WeightDistrib N=1 n=2e7 r=26 k=256 a=0 b=1/16  (22055s)
+  [OK]   # 67 FWD  smarsa_MatrixRank N=10 n=1e6 r=25 s=5 L=k=30  (22064s)
+  [OK]   # 67 REV  smarsa_MatrixRank N=10 n=1e6 r=25 s=5 L=k=30  (22246s)
+  [OK]   # 68 FWD  smarsa_MatrixRank N=1 n=5000 r=0 s=4 L=k=1000  (22366s)
+  [OK]   # 68 REV  smarsa_MatrixRank N=1 n=5000 r=0 s=4 L=k=1000  (22373s)
+  [OK]   # 70 FWD  smarsa_MatrixRank N=1 n=80 r=15 s=15 L=k=5000  (22448s)
+  [OK]   # 70 REV  smarsa_MatrixRank N=1 n=80 r=15 s=15 L=k=5000  (22523s)
+  [OK]   # 69 FWD  smarsa_MatrixRank N=1 n=5000 r=26 s=4 L=k=1000  (22556s)
+  [OK]   # 71 FWD  smarsa_MatrixRank N=1 n=80 r=0 s=30 L=k=5000  (22576s)
+  [OK]   # 71 REV  smarsa_MatrixRank N=1 n=80 r=0 s=30 L=k=5000  (22607s)
+  [OK]   # 69 REV  smarsa_MatrixRank N=1 n=5000 r=26 s=4 L=k=1000  (22680s)
+  [OK]   # 73 FWD  smarsa_GCD N=10 n=5e7 r=0 s=30  (22925s)
+  [OK]   # 65 FWD  svaria_SumCollector N=1 n=5e8 r=0 g=10  (23152s)
+  [OK]   # 73 REV  smarsa_GCD N=10 n=5e7 r=0 s=30  (23171s)
+  [OK]   # 72 FWD  smarsa_Savir2 N=10 n=1e7 r=10 m=2^20 t=30  (23191s)
+  [OK]   # 65 REV  svaria_SumCollector N=1 n=5e8 r=0 g=10  (23210s)
+  [OK]   # 72 REV  smarsa_Savir2 N=10 n=1e7 r=10 m=2^20 t=30  (23219s)
+  [OK]   # 74 FWD  swalk_RandomWalk1 N=1 n=1e8 r=0 s=5 L0=L1=50  (23395s)
+  [OK]   # 74 REV  swalk_RandomWalk1 N=1 n=1e8 r=0 s=5 L0=L1=50  (23410s)
+  [OK]   # 76 FWD  swalk_RandomWalk1 N=1 n=1e7 r=0 s=10 L0=L1=1000  (23425s)
+  [OK]   # 75 FWD  swalk_RandomWalk1 N=1 n=1e8 r=25 s=5 L0=L1=50  (23428s)
+  [OK]   # 75 REV  swalk_RandomWalk1 N=1 n=1e8 r=25 s=5 L0=L1=50  (23446s)
+  [OK]   # 78 FWD  swalk_RandomWalk1 N=1 n=1e6 r=0 s=15 L0=L1=10000  (23579s)
+  [OK]   # 78 REV  swalk_RandomWalk1 N=1 n=1e6 r=0 s=15 L0=L1=10000  (23598s)
+  [OK]   # 76 REV  swalk_RandomWalk1 N=1 n=1e7 r=0 s=10 L0=L1=1000  (23612s)
+  [OK]   # 77 FWD  swalk_RandomWalk1 N=1 n=1e7 r=20 s=10 L0=L1=1000  (23628s)
+  [OK]   # 77 REV  swalk_RandomWalk1 N=1 n=1e7 r=20 s=10 L0=L1=1000  (23644s)
+  [OK]   # 80 FWD  scomp_LinearComp N=1 n=400000 r=0 s=1  (23704s)
+  [OK]   # 80 REV  scomp_LinearComp N=1 n=400000 r=0 s=1  (23718s)
+  [OK]   # 79 FWD  swalk_RandomWalk1 N=1 n=1e6 r=15 s=15 L0=L1=10000  (23726s)
+  [OK]   # 81 FWD  scomp_LinearComp N=1 n=400000 r=29 s=1  (23734s)
+  [OK]   # 79 REV  swalk_RandomWalk1 N=1 n=1e6 r=15 s=15 L0=L1=10000  (23743s)
+  [OK]   # 81 REV  scomp_LinearComp N=1 n=400000 r=29 s=1  (23791s)
+  [OK]   # 82 FWD  scomp_LempelZiv N=10 k=27 r=0 s=30  (23794s)
+  [OK]   # 82 REV  scomp_LempelZiv N=10 k=27 r=0 s=30  (23801s)
+  [OK]   # 83 FWD  scomp_LempelZiv N=10 k=27 r=15 s=15  (23822s)
+  [OK]   # 83 REV  scomp_LempelZiv N=10 k=27 r=15 s=15  (23832s)
+  [OK]   # 84 REV  sspectral_Fourier3 N=100000 r=0 s=3 k=14  (23926s)
+  [OK]   # 84 FWD  sspectral_Fourier3 N=100000 r=0 s=3 k=14  (23927s)
+  [OK]   # 85 FWD  sspectral_Fourier3 N=100000 r=27 s=3 k=14  (23937s)
+  [OK]   # 85 REV  sspectral_Fourier3 N=100000 r=27 s=3 k=14  (23956s)
+  [OK]   # 86 FWD  sstring_LongestHeadRun N=1 n=1000 r=0 s=3 L=1e7  (24588s)
+  [OK]   # 87 FWD  sstring_LongestHeadRun N=1 n=1000 r=27 s=3 L=1e7  (24671s)
+  [OK]   # 87 REV  sstring_LongestHeadRun N=1 n=1000 r=27 s=3 L=1e7  (24682s)
+  [OK]   # 86 REV  sstring_LongestHeadRun N=1 n=1000 r=0 s=3 L=1e7  (24686s)
+  [OK]   # 88 FWD  sstring_PeriodsInStrings N=10 n=5e8 r=0 s=10  (25063s)
+  [OK]   # 90 FWD  sstring_HammingWeight2 N=10 n=1e9 r=0 s=3 L=1e6  (25336s)
+  [OK]   # 90 REV  sstring_HammingWeight2 N=10 n=1e9 r=0 s=3 L=1e6  (25717s)
+  [OK]   # 88 REV  sstring_PeriodsInStrings N=10 n=5e8 r=0 s=10  (25726s)
+  [OK]   # 89 FWD  sstring_PeriodsInStrings N=10 n=5e8 r=20 s=10  (25822s)
+  [OK]   # 89 REV  sstring_PeriodsInStrings N=10 n=5e8 r=20 s=10  (25836s)
+  [OK]   # 91 FWD  sstring_HammingWeight2 N=10 n=1e9 r=27 s=3 L=1e6  (26007s)
+  [OK]   # 91 REV  sstring_HammingWeight2 N=10 n=1e9 r=27 s=3 L=1e6  (26386s)
+  [OK]   # 92 FWD  sstring_HammingCorr N=1 n=1e9 r=10 s=10 L=30  (26408s)
+  [OK]   # 92 REV  sstring_HammingCorr N=1 n=1e9 r=10 s=10 L=30  (26505s)
+  [OK]   # 93 FWD  sstring_HammingCorr N=1 n=1e8 r=10 s=10 L=300  (26516s)
+  [OK]   # 93 REV  sstring_HammingCorr N=1 n=1e8 r=10 s=10 L=300  (26673s)
+  [OK]   # 95 REV  sstring_HammingIndep N=10 n=3e7 r=0 s=3 L=30 d=0  (27777s)
+  [OK]   # 95 FWD  sstring_HammingIndep N=10 n=3e7 r=0 s=3 L=30 d=0  (27801s)
+  [OK]   # 96 FWD  sstring_HammingIndep N=10 n=3e7 r=27 s=3 L=30 d=0  (27972s)
+  [OK]   # 97 FWD  sstring_HammingIndep N=1 n=3e7 r=0 s=4 L=300 d=0  (28772s)
+  [OK]   # 97 REV  sstring_HammingIndep N=1 n=3e7 r=0 s=4 L=300 d=0  (28940s)
+  [OK]   # 96 REV  sstring_HammingIndep N=10 n=3e7 r=27 s=3 L=30 d=0  (29129s)
+  [OK]   # 94 REV  sstring_HammingCorr N=1 n=1e8 r=10 s=10 L=1200  (29199s)
+  [OK]   # 94 FWD  sstring_HammingCorr N=1 n=1e8 r=10 s=10 L=1200  (29208s)
+  [OK]   # 98 FWD  sstring_HammingIndep N=1 n=3e7 r=26 s=4 L=300 d=0  (29791s)
+  [OK]   # 98 REV  sstring_HammingIndep N=1 n=3e7 r=26 s=4 L=300 d=0  (29939s)
+  [OK]   # 99 FWD  sstring_HammingIndep N=1 n=1e7 r=0 s=5 L=1200 d=0  (30192s)
+  [OK]   # 99 REV  sstring_HammingIndep N=1 n=1e7 r=0 s=5 L=1200 d=0  (30252s)
+  [OK]   #100 FWD  sstring_HammingIndep N=1 n=1e7 r=25 s=5 L=1200 d=0  (30298s)
+  [OK]   #101 FWD  sstring_Run N=1 n=2e9 r=0 s=3  (30558s)
+  [OK]   #101 REV  sstring_Run N=1 n=2e9 r=0 s=3  (30804s)
+  [OK]   #100 REV  sstring_HammingIndep N=1 n=1e7 r=25 s=5 L=1200 d=0  (30835s)
+  [OK]   #102 FWD  sstring_Run N=1 n=2e9 r=27 s=3  (30870s)
+  [OK]   #102 REV  sstring_Run N=1 n=2e9 r=27 s=3  (30921s)
+  [OK]   #103 FWD  sstring_AutoCor N=10 n=1e9 r=0 s=3 d=1  (31242s)
+  [OK]   #103 REV  sstring_AutoCor N=10 n=1e9 r=0 s=3 d=1  (31507s)
+  [OK]   #104 FWD  sstring_AutoCor N=10 n=1e9 r=0 s=3 d=3  (31517s)
+  [OK]   #104 REV  sstring_AutoCor N=10 n=1e9 r=0 s=3 d=3  (31547s)
+  [OK]   #105 FWD  sstring_AutoCor N=10 n=1e9 r=27 s=3 d=1  (31617s)
+  [OK]   #105 REV  sstring_AutoCor N=10 n=1e9 r=27 s=3 d=1  (31895s)
+  [OK]   #106 FWD  sstring_AutoCor N=10 n=1e9 r=27 s=3 d=3  (32104s)
+  [OK]   #106 REV  sstring_AutoCor N=10 n=1e9 r=27 s=3 d=3  (32109s)
+
+============================================================
+  RESULTS: 208 passed, 4 failed, 212 total
+  Time: 32109s
+============================================================
+
+------------------------------------------------------------
+  FAILED TESTS DETAILS
+------------------------------------------------------------
+
+  Test #36 [FORWARD] -- sknuth_Gap N=1 n=1e8 r=0 a=0 b=1/128
+    The following tests gave p-values outside [0.001, 0.9990]:
+    (eps  means a value < 1.0e-300):
+    (eps1 means a value < 1.0e-15):
+    Test                          p-value
+    ----------------------------------------------
+    36  Gap, r = 0                      5.3e-6
+    ----------------------------------------------
+
+  Test #37 [FORWARD] -- sknuth_Gap N=1 n=1e7 r=20 a=0 b=1/1024
+    The following tests gave p-values outside [0.001, 0.9990]:
+    (eps  means a value < 1.0e-300):
+    (eps1 means a value < 1.0e-15):
+    Test                          p-value
+    ----------------------------------------------
+    37  Gap, r = 20                     8.2e-6
+    ----------------------------------------------
+
+  Test #36 [REVERSE] -- sknuth_Gap N=1 n=1e8 r=0 a=0 b=1/128
+    The following tests gave p-values outside [0.001, 0.9990]:
+    (eps  means a value < 1.0e-300):
+    (eps1 means a value < 1.0e-15):
+    Test                          p-value
+    ----------------------------------------------
+    36  Gap, r = 0                      5.3e-6
+    ----------------------------------------------
+
+  Test #37 [REVERSE] -- sknuth_Gap N=1 n=1e7 r=20 a=0 b=1/1024
+    The following tests gave p-values outside [0.001, 0.9990]:
+    (eps  means a value < 1.0e-300):
+    (eps1 means a value < 1.0e-15):
+    Test                          p-value
+    ----------------------------------------------
+    37  Gap, r = 20                     8.2e-6
+    ----------------------------------------------

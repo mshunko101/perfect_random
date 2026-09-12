@@ -31,8 +31,9 @@ using namespace std;
 
 class CascadePRNG
 {
-private:
+public:                                              // FIX: M перенесён в public
     static constexpr uint64_t M = 2147483647ULL;       // 2^31 - 1
+private:
     static constexpr uint64_t MUL_A = 954437177ULL;     // 5/9 mod M
     static constexpr uint64_t MUL_B = 715827884ULL;     // 5/3 mod M
 
@@ -202,6 +203,11 @@ public:
         return rng.generate();
     }
 
+    // FIX: добавлен generate_raw() для корректной детекции коллизий
+    uint32_t generate_raw() {
+        return rng.generate_raw();
+    }
+
     uint64_t state_seed() {
         uint64_t a = rng.get_a();
         uint64_t b = rng.get_b();
@@ -221,12 +227,10 @@ private:
 public:
     MeanCore(double m, uint64_t s) : mean(m), rng(s, 49) {}
 
-    // ── MeanCore::adjust — исправленная нормализация ──
-    // MeanCore::adjust — ЗАМЕНИТЬ:
+    // FIX: UINT_MAX → CascadePRNG::M
     double adjust(double base) {
-        return (base / static_cast<double>(UINT_MAX)) * mean + rng.generate();
+        return (base / static_cast<double>(CascadePRNG::M)) * mean + rng.generate();
     }
-
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -260,7 +264,6 @@ public:
         }
     }
 
-    // FantasyCore::apply_fantasy  
     double apply_fantasy(double base) {
         for (const auto& dim : dimensions) {
             if (rng.generate() == 0) {
@@ -272,7 +275,6 @@ public:
         }
         return base;
     }
-
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -286,7 +288,7 @@ private:
     AssociativityCore  assocCore;
     MeanCore           meanCore;
     FantasyCore        fantasyCore;
-    std::unordered_set<unsigned int> history;
+    std::unordered_set<uint32_t> history;             // FIX: unsigned int → uint32_t
     static constexpr int MAX_RETRIES = 49;
     static constexpr int MAX_HISTORY_SIZE = 49;
     size_t             inc_counter;
@@ -299,7 +301,7 @@ private:
         uint64_t s3 = SeedCascade::derive(new_seed, 2);
 
         assocCore = AssociativityCore(s1);
-        meanCore = MeanCore(1.0, s2);
+        meanCore = MeanCore(0.5, s2);
         fantasyCore = FantasyCore(s3);
     }
 
@@ -307,7 +309,7 @@ public:
     RNG(unsigned int seed, double period)
         : master_seed(seed),
         assocCore(SeedCascade::derive(seed, 0)),
-        meanCore(1.0, SeedCascade::derive(seed, 1)),
+        meanCore(0.5, SeedCascade::derive(seed, 1)),
         fantasyCore(SeedCascade::derive(seed, 2)),
         inc_counter(0)
     {
@@ -319,13 +321,14 @@ public:
         return inc_max;
     }
 
-    bool isCollision(unsigned int value) {
+    // FIX: unsigned int → uint32_t
+    bool isCollision(uint32_t value) {
         if (history.count(value) > 0) return true;
         history.insert(value);
         return false;
     }
 
-    void handle_collision(unsigned int a, unsigned int b) {
+    void handle_collision(uint32_t a, uint32_t b) {
         fantasyCore.add_collision(a, b);
     }
 
@@ -336,15 +339,19 @@ public:
             inc_counter = 0;
         }
 
-        double base = assocCore.generate();
-        int retries = 0;
-        static unsigned int previous_base = base;
+        // FIX: коллизии проверяются по raw 32-битным значениям,
+        //      а не по double, который обрезался до 0
+        uint32_t base_raw = assocCore.generate_raw();
+        double base = (double)base_raw / (double)CascadePRNG::M;
 
-        while (isCollision(base) && retries < MAX_RETRIES) {
-            previous_base = base;
-            base = assocCore.generate();
-            if (base == previous_base) {
-                handle_collision(previous_base, base);
+        int retries = 0;
+        uint32_t previous_raw = base_raw;
+
+        while (isCollision(base_raw) && retries < MAX_RETRIES) {
+            previous_raw = base_raw;
+            base_raw = assocCore.generate_raw();
+            if (base_raw == previous_raw) {
+                handle_collision(previous_raw, base_raw);
             }
             retries++;
         }
@@ -352,7 +359,8 @@ public:
         if (retries >= MAX_RETRIES) {
             uint64_t fresh_seed = assocCore.state_seed();
             reseed(fresh_seed);
-            base = assocCore.generate();
+            base_raw = assocCore.generate_raw();
+            base = (double)base_raw / (double)CascadePRNG::M;
             clearHistory();
             fantasyCore.dimensions.clear();
         }
@@ -367,8 +375,6 @@ public:
         inc_counter += 8;
         return current;
     }
-
-
 
     void clearHistory() { history.clear(); }
     size_t getHistorySize() const { return history.size(); }

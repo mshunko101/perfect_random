@@ -335,7 +335,6 @@ public:
             reseed(fresh_seed ^ master_seed);
             inc_counter = 0;
         }
-        inc_counter += 8;
 
         double base = assocCore.generate();
         int retries = 0;
@@ -365,6 +364,7 @@ public:
 
         double mean_adjusted = meanCore.adjust(base);
         double current = fantasyCore.apply_fantasy(mean_adjusted);
+        inc_counter += 8;
         return current;
     }
 

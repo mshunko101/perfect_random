@@ -299,7 +299,7 @@ private:
         uint64_t s3 = SeedCascade::derive(new_seed, 2);
 
         assocCore = AssociativityCore(s1);
-        meanCore = MeanCore(1.0, s2);
+        meanCore = MeanCore(0.5, s2);
         fantasyCore = FantasyCore(s3);
     }
 
@@ -307,7 +307,7 @@ public:
     RNG(unsigned int seed, double period)
         : master_seed(seed),
         assocCore(SeedCascade::derive(seed, 0)),
-        meanCore(1.0, SeedCascade::derive(seed, 1)),
+        meanCore(0.5, SeedCascade::derive(seed, 1)),
         fantasyCore(SeedCascade::derive(seed, 2)),
         inc_counter(0)
     {

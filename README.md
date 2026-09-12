@@ -207,21 +207,6 @@ int main() {
 | `seed` | `unsigned int` | Начальное зерно (0 → 1) |
 | `period` | `double` | ОПЖ — ожидаемая продолжительность жизни в годах (для ризида) |
 
-### Сборка и тестирование
-
-```bash
-# Компиляция worker'а для TestU01
-g++ -std=c++17 -O3 -o perfect_random_v3 tu01_worker.cpp \
-    -I$TESTU01/include -L$TESTU01/lib \
-    -ltestu01 -lprobdist -lmylib -lm
-
-# Полный BigCrush (параллельно)
-python3 per_big_crush_v5.py --workers 5
-
-# Отдельный тест
-./perfect_random_v3 -t 36 -n 1 -v
-```
-
 
 ## Лицензия
 

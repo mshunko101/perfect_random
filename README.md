@@ -1,5 +1,6 @@
 
 [![NIST SP 800-22](https://github.com/MSHUNKO101/perfect_random/actions/workflows/msbuild.yml/badge.svg)](https://github.com/MSHUNKO101/perfect_random/actions/workflows/msbuild.yml)
+[![BigCrush: 104/106](https://img.shields.io/badge/BigCrush-104%2F106-green)](https://github.com/MSHUNKO101/perfect_random/releases)
 [![Status: Testing](https://img.shields.io/badge/status-testing-blue)](https://github.com/MSHUNKO101/perfect_random/releases)
 [![Release](https://img.shields.io/github/v/release/MSHUNKO101/perfect_random)](https://github.com/MSHUNKO101/perfect_random/releases)
 [![License](https://img.shields.io/github/license/MSHUNKO101/perfect_random)](LICENSE)

@@ -1,8 +1,29 @@
 
-[![NIST SP 800-22](https://github.com/MSHUNKO101/perfect_random/actions/workflows/msbuild.yml/badge.svg)](https://github.com/MSHUNKO101/perfect_random/actions/workflows/msbuild.yml)
-[![BigCrush: 212/212](https://img.shields.io/badge/BigCrush-212%2F212-brightgreen)](https://github.com/MSHUNKO101/perfect_random/releases)
-[![Release](https://img.shields.io/github/v/release/MSHUNKO101/perfect_random)](https://github.com/MSHUNKO101/perfect_random/releases)
-[![License](https://img.shields.io/github/license/MSHUNKO101/perfect_random)](LICENSE)
+# perfect_random
+
+![Monte Carlo](https://img.shields.io/badge/Monte%20Carlo-ready-brightgreen.svg)
+![Simulations](https://img.shields.io/badge/Simulations-ready-brightgreen.svg)
+![Games](https://img.shields.io/badge/Games-ready-brightgreen.svg)
+![Crypto](https://img.shields.io/badge/Crypto-NOT%20CSPRNG-red.svg)
+![Quasi-MC](https://img.shields.io/badge/Quasi--MC-not%20applicable-red.svg)
+
+
+![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
+![Header-only](https://img.shields.io/badge/Header--only-yes-success.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+
+
+![NIST SP 800-22](https://img.shields.io/badge/NIST%20SP%20800--22-15%2F15%20PASS-brightgreen.svg)
+![BigCrush](https://img.shields.io/badge/BigCrush-160%2F160%20PASS-brightgreen.svg)
+![PractRand](https://img.shields.io/badge/PractRand-16%20GB%20PASS-brightgreen.svg)
+![Nonlinear](https://img.shields.io/badge/architecture-nonlinear-orange.svg)
+
+
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-lightgrey.svg)
+![TestU01](https://img.shields.io/badge/TestU01-1.2.3-blue.svg)
+![PractRand](https://img.shields.io/badge/PractRand-0.94-blue.svg)
+
+
 
 ![Логотип](perfect_random_logo.jpeg) 
 

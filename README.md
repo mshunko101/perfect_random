@@ -1,6 +1,7 @@
 
 # perfect_random
 
+
 ![Monte Carlo](https://img.shields.io/badge/Monte%20Carlo-ready-brightgreen.svg)
 ![Simulations](https://img.shields.io/badge/Simulations-ready-brightgreen.svg)
 ![Games](https://img.shields.io/badge/Games-ready-brightgreen.svg)
@@ -10,8 +11,8 @@
 
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
 ![Header-only](https://img.shields.io/badge/Header--only-yes-success.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-
+[![Release](https://img.shields.io/github/v/release/MSHUNKO101/perfect_random)](https://github.com/MSHUNKO101/perfect_random/releases)
+[![License](https://img.shields.io/github/license/MSHUNKO101/perfect_random)](LICENSE)
 
 ![NIST SP 800-22](https://img.shields.io/badge/NIST%20SP%20800--22-15%2F15%20PASS-brightgreen.svg)
 ![BigCrush](https://img.shields.io/badge/BigCrush-160%2F160%20PASS-brightgreen.svg)
@@ -22,6 +23,7 @@
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-lightgrey.svg)
 ![TestU01](https://img.shields.io/badge/TestU01-1.2.3-blue.svg)
 ![PractRand](https://img.shields.io/badge/PractRand-0.94-blue.svg)
+
 
 
 
@@ -165,7 +167,7 @@ O_okr  = (-2.64,     -7.91,  1.65)
 | Воспроизводимость | PASS |
 | Чувствительность к seed | PASS |
 | Seed = 0 | PASS |
-| Диапазон [0, 1) | PASS |
+| Диапазон \[0, 1) | PASS |
 | Среднее (~0.5) | PASS |
 | СКО (~0.2887) | PASS |
 | Chi-square (10 корзин) | PASS |

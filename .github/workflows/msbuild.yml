@@ -2,19 +2,20 @@ name: MSBuild with Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'src/**'
-      - '**.sln'
-      - '**.vcxproj'
-      - 'tests/**'
-      - '.github/workflows/msbuild.yml'
+      - "src/**"
+      - "**/*.sln"
+      - "**/*.vcxproj"
+      - "tests/**"
+      - ".github/workflows/msbuild.yml"
   release:
     types: [created]
 
 env:
   SOLUTION_FILE_PATH: ./src/Rand++.sln
   BUILD_CONFIGURATION: Release
+  BUILD_PLATFORM: x64
   ARTIFACTS_DIR: artifacts
 
 permissions:
@@ -23,150 +24,162 @@ permissions:
 jobs:
   build-and-release:
     runs-on: windows-latest
-    if: |
-      github.event_name != 'release' ||
-      (github.event_name == 'release' &&
-       startsWith(github.event.release.tag_name, 'v'))
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v3
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v3
 
-    - name: Setup NuGet
-      uses: nuget/setup-nuget@v2
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
 
-    - name: Restore NuGet packages
-      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+      - name: Restore NuGet packages
+        run: nuget restore ${{ env.SOLUTION_FILE_PATH }}
 
-    - name: Build solution
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
+      - name: Build solution
+        run: msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }} ${{ env.SOLUTION_FILE_PATH }}
 
-    - name: Run C++ unit tests
-      run: |
-        $testExe = ".\src\x64\${{env.BUILD_CONFIGURATION}}\cpp_tests.exe"
-        if (-not (Test-Path $testExe)) {
-          Write-Host "cpp_tests.exe не найден в $testExe — ищем рекурсивно..."
-          $found = Get-ChildItem -Path ".\src" -Filter "cpp_tests.exe" -Recurse | Select-Object -First 1
-          if ($found) {
-            $testExe = $found.FullName
-            Write-Host "Найден: $testExe"
-          } else {
-            Write-Error "cpp_tests.exe не найден!"
+      - name: Run C++ unit tests
+        run: |
+          $testExe = ".\src\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}\cpp_tests.exe"
+          if (-not (Test-Path $testExe)) {
+            Write-Host "cpp_tests.exe не найден в $testExe — ищем рекурсивно..."
+            $found = Get-ChildItem -Path ".\src" -Filter "cpp_tests.exe" -Recurse | Select-Object -First 1
+            if ($found) {
+              $testExe = $found.FullName
+              Write-Host "Найден: $testExe"
+            } else {
+              Write-Error "cpp_tests.exe не найден!"
+              exit 1
+            }
+          }
+          Write-Host "Running: $testExe"
+          & $testExe
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "C++ unit tests FAILED (exit code: $LASTEXITCODE)"
             exit 1
           }
-        }
-        Write-Host "Running: $testExe"
-        & $testExe
-        if ($LASTEXITCODE -ne 0) {
-          Write-Error "C++ unit tests FAILED (exit code: $LASTEXITCODE)"
-          exit 1
-        }
-        Write-Host "C++ unit tests PASSED"
+          Write-Host "C++ unit tests PASSED"
 
-    - name: Generate test data (CLI mode)
-      run: |
-        $outputFile = Join-Path $PWD "test_data.bin"
-        Write-Host "Generating test data to: $outputFile"
-        .\src\x64\${{env.BUILD_CONFIGURATION}}\Rand++.exe -a 0 -b 256 -n 134217728 -p 73.8 -f bin -s 8 -o $outputFile
+      - name: Generate test data (CLI mode) CPP
+        run: |
+          $outputFileCpp = Join-Path $PWD "test_datacpp.bin"
+          Write-Host "Generating test data to: $outputFile"
+          $genExe = ".\src\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}\Rand++.exe"
+          if (-not (Test-Path $genExe)) {
+            $genExe = Get-ChildItem -Path ".\src" -Filter "Rand++.exe" -Recurse | Select-Object -First 1 | ForEach-Object { $_.FullName }
+            if (-not $genExe) {
+              Write-Error "Rand++.exe не найден!"
+              exit 1
+            }
+            Write-Host "Rand++.exe найден: $genExe"
+          }
+          & $genExe -a 0 -b 256 -n 134217728 -p 73.8 -f bin -s 8 -o $outputFileCpp
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+      - name: Generate test data (CLI mode) C
+        run: |
+          $outputFileC = Join-Path $PWD "test_datac.bin"
+          Write-Host "Generating test data to: $outputFile"
+          $genExe = ".\src\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}\Rand++.exe"
+          if (-not (Test-Path $genExe)) {
+            $genExe = Get-ChildItem -Path ".\src" -Filter "Rand++.exe" -Recurse | Select-Object -First 1 | ForEach-Object { $_.FullName }
+            if (-not $genExe) {
+              Write-Error "Rand++.exe не найден!"
+              exit 1
+            }
+            Write-Host "Rand++.exe найден: $genExe"
+          }
+          & $genExe -a 0 -b 256 -n 134217728 -p 73.8 -f bin -s 8 -e c -o $outputFileC
 
-    - name: Install Python dependencies
-      run: |
-        pip install sp80022suite numpy scipy
 
-    - name: Run NIST statistical tests
-      run: |
-        python tests/run_nist_tests.py test_data.bin
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-    - name: Create artifacts directory
-      run: |
-        New-Item -ItemType Directory -Force -Path ${{env.ARTIFACTS_DIR}}
+      - name: Install Python dependencies
+        run: pip install sp80022suite numpy scipy
 
-    - name: Copy additional files from repository
-      run: |
-        Copy-Item -Path "README.md" -Destination "${{env.ARTIFACTS_DIR}}" -Force
-        Copy-Item -Path "perfect_random_logo.jpeg" -Destination "${{env.ARTIFACTS_DIR}}" -Force
-        Copy-Item -Path "LICENSE" -Destination "${{env.ARTIFACTS_DIR}}" -Force
-        Copy-Item -Path "perfect_random.hpp" -Destination "${{env.ARTIFACTS_DIR}}" -Force
+      - name: Run NIST statistical tests
+        run: python tests/run_nist_tests.py test_data.bin
+        # Если скрипт возвращает exit 1 при FAIL, пайплайн остановится здесь
 
-    - name: Compress build output
-      run: |
-        $zipPath = "${{env.ARTIFACTS_DIR}}\perfect-random.zip"
+      - name: Create artifacts directory
+        run: New-Item -ItemType Directory -Force -Path ${{ env.ARTIFACTS_DIR }}
 
-        $exeFiles = @()
-        $expectedPath = ".\src\x64\${{env.BUILD_CONFIGURATION}}"
-        if (Test-Path $expectedPath) {
-            $exeFiles = Get-ChildItem -Path $expectedPath -Filter "*.exe" -Recurse
-        }
-        if ($exeFiles.Count -eq 0) {
+      - name: Copy additional files from repository
+        run: |
+          Copy-Item -Path "README.md" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          Copy-Item -Path "LICENSE" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          Copy-Item -Path "perfect_random.hpp" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          Copy-Item -Path "perfect_random_с.h" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          # perfect_random_logo.jpeg копируем только если он есть
+          if (Test-Path "perfect_random_logo.jpeg") {
+            Copy-Item -Path "perfect_random_logo.jpeg" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          } else {
+            Write-Warning "perfect_random_logo.jpeg не найден — пропускаем"
+          }
+
+      - name: Compress build output
+        run: |
+          $zipPath = "${{ env.ARTIFACTS_DIR }}\perfect-random.zip"
+          $expectedPath = ".\src\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}"
+
+          $exeFiles = Get-ChildItem -Path $expectedPath -Filter "*.exe" -Recurse -File
+          if ($exeFiles.Count -eq 0) {
             Write-Host "Не найдено в $expectedPath — ищем рекурсивно по src..."
-            $exeFiles = Get-ChildItem -Path ".\src" -Filter "*.exe" -Recurse
-        }
+            $exeFiles = Get-ChildItem -Path ".\src" -Filter "*.exe" -Recurse -File
+          }
 
-        if ($exeFiles.Count -eq 0) {
+          if ($exeFiles.Count -eq 0) {
             Write-Error "Ни одного .exe не найдено!"
             exit 1
-        }
+          }
 
-        foreach ($f in $exeFiles) {
-            Write-Host "Найден: $($f.FullName)"
-            Copy-Item -Path $f.FullName -Destination "${{env.ARTIFACTS_DIR}}" -Force
-        }
+          foreach ($f in $exeFiles) {
+            Write-Host "Копирование: $($f.FullName)"
+            Copy-Item -Path $f.FullName -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          }
 
-        Compress-Archive -Path "${{env.ARTIFACTS_DIR}}\*" -DestinationPath $zipPath -Force
-        Write-Host "Архив создан: $zipPath"
-        Write-Host "Содержимое архива:"
-        [System.IO.Compression.ZipFile]::OpenRead($zipPath).Entries |
+          Compress-Archive -Path "${{ env.ARTIFACTS_DIR }}\*" -DestinationPath $zipPath -Force
+          Write-Host "Архив создан: $zipPath"
+
+          [System.IO.Compression.ZipFile]::OpenRead($zipPath).Entries |
             ForEach-Object { Write-Host "  $($_.FullName)" }
 
-    - name: Calculate short commit hash
-      id: short-sha
-      run: |
-        $sha = "${{ github.sha }}"
-        $short = $sha.Substring(0, 7)
-        echo "SHORT_SHA=$short" >> $env:GITHUB_OUTPUT
+      - name: Calculate short commit hash
+        id: short-sha
+        run: |
+          $sha = "${{ github.sha }}"
+          $short = $sha.Substring(0, 7)
+          "SHORT_SHA=$short" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding ASCII
 
-    - name: Create Release and Upload Asset
-      uses: softprops/action-gh-release@v3
-      if: github.event_name == 'push'
-      env:
-        GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
-      with:
-        tag_name: v${{ github.run_number }}
-        name: Release v${{ github.run_number }}
-        body: |
-          Сборка проекта Rand++
+      # Создаём релиз только при событии release
+      - name: Create Release and Upload Asset
+        uses: softprops/action-gh-release@v3
+        if: github.event_name == 'release'
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          name: Release ${{ github.event.release.tag_name }}
+          body: |
+            Сборка проекта Rand++ / perfect_random
 
-          **Версия:** v${{ github.run_number }}
-          **Дата сборки:** ${{ github.event.head_commit.timestamp }}
-          **Коммит:** `${{ steps.short-sha.outputs.SHORT_SHA }}`
-          **Полный SHA:** ${{ github.sha }}
-        files: ${{env.ARTIFACTS_DIR}}/perfect-random.zip
-        draft: false
-        prerelease: false
+            **Версия:** ${{ github.event.release.tag_name }}
+            **Коммит:** `${{ steps.short-sha.outputs.SHORT_SHA }}`
+            **Полный SHA:** ${{ github.sha }}
+          files: ${{ env.ARTIFACTS_DIR }}/perfect-random.zip
+          draft: false
+          prerelease: false
 
-    - name: Upload Asset to existing Release
-      uses: softprops/action-gh-release@v3
-      if: github.event_name == 'release'
-      env:
-        GITHUB_TOKEN: ${{ secrets.MSHUNKO_TOKEN }}
-      with:
-        files: ${{env.ARTIFACTS_DIR}}/perfect-random.zip
-
-    - name: Cleanup
-      if: always()
-      run: |
-        if (Test-Path ${{env.ARTIFACTS_DIR}}) {
-            Remove-Item -Path ${{env.ARTIFACTS_DIR}} -Recurse -Force
+      - name: Cleanup
+        if: always()
+        run: |
+          if (Test-Path ${{ env.ARTIFACTS_DIR }}) {
+            Remove-Item -Path ${{ env.ARTIFACTS_DIR }} -Recurse -Force
             Write-Host "Временные файлы очищены"
-        }
-        if (Test-Path "test_data.bin") {
+          }
+          if (Test-Path "test_data.bin") {
             Remove-Item -Path "test_data.bin" -Force
-        }
+          }

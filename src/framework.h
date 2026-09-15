@@ -7,3 +7,5 @@
 #include "targetver.h"
 
 
+#include <windows.h>
+#include "resource.h"

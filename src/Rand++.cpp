@@ -1,7 +1,39 @@
 ﻿// Rand++.cpp — WinAPI version (no MFC) + CLI mode
+// MSHUNKO 2026
 #include "pch.h"
 #include "../perfect_random.hpp"
-#include <windows.h>
+
+// ── Подключение C-версии с переименованием типов ────────────────
+// Включаем C-заголовок, переименовывая конфликтующие типы,
+// чтобы они не столкнулись с C++ классами из perfect_random.hpp
+extern "C" {
+#define RNG             CRNG
+#define CascadePRNG     CCascadePRNG
+#define Point            CPoint
+#define RotationCalculator CRotationCalculator
+#define AssociativityCore  CAssociativityCore
+#define MeanCore         CMeanCore
+#define FantasyCore      CFantasyCore
+#define Dimension        CDimension
+#define HashSet32        CHashSet32
+#include "../perfect_random_с.h"
+#undef RNG
+#undef CascadePRNG
+#undef Point
+#undef RotationCalculator
+#undef AssociativityCore
+#undef MeanCore
+#undef FantasyCore
+#undef Dimension
+#undef HashSet32
+    // Сбрасываем C-макросы, чтобы не мешали C++ коду
+#undef SEED_DELTA
+#undef HASH_INITIAL_CAP
+#undef MAX_RETRIES
+#undef MAX_HISTORY_SZ
+}
+
+
 #include <commctrl.h>
 #include <string>
 #include <fstream>
@@ -11,9 +43,12 @@
 #include <ctime>
 #include <iostream>
 #include <functional>
-#include "resource.h"
 
 #pragma comment(lib, "comctl32.lib")
+
+// ── Resource IDs для радио-кнопок (добавьте в resource.h) ──────
+// #define IDC_ENGINE_CPP    2000
+// #define IDC_ENGINE_C       2001
 
 // ── Custom messages ─────────────────────────────────────────────
 #define WM_UPDATE_PROGRESS   (WM_APP + 1)
@@ -24,6 +59,7 @@
 static HINSTANCE g_hInstance = nullptr;
 
 enum class NumberSize { Byte = 8, Word = 16, DWord = 32 };
+enum class EngineType { CPP, C };
 
 // ── Thread parameters ───────────────────────────────────────────
 struct GenParams {
@@ -35,7 +71,8 @@ struct GenParams {
     bool output_double = false;
     bool binary_format = true;
     std::wstring filename = L"output.bin";
-    double period = 42.0;       // Период вращения для RotationCalculator
+    double period = 42.0;
+    EngineType engine = EngineType::CPP;     // ← выбор движка
 };
 
 // ── Helpers ─────────────────────────────────────────────────────
@@ -61,6 +98,10 @@ static std::wstring SizeToStr(NumberSize s) {
     }
 }
 
+static std::wstring EngineToStr(EngineType e) {
+    return (e == EngineType::C) ? L"C" : L"C++";
+}
+
 
 // ── Shared generation core ──────────────────────────────────────
 static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
@@ -68,7 +109,20 @@ static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
     if (p.serie_count == 0) { errMsg = L"count";  return false; }
     if (p.serie_min >= p.serie_max) { errMsg = L"minmax"; return false; }
 
-    RNG rng(static_cast<unsigned int>(time(nullptr)), p.period);
+    // ── Создание генератора: C++ или C ──
+    std::function<double()> genVal;
+    CRNG* crng = nullptr;
+    RNG* cpprng = nullptr;
+
+    if (p.engine == EngineType::C) {
+        crng = new CRNG;
+        rng_init(crng, (uint32_t)time(nullptr), p.period);
+        genVal = [crng]() { return rng_generate(crng); };
+    }
+    else {
+        cpprng = new RNG(static_cast<unsigned int>(time(nullptr)), p.period);
+        genVal = [cpprng]() { return cpprng->generate(); };
+    }
 
     // Сколько байт тянем из генератора за одно число
     size_t pull_size;
@@ -89,10 +143,15 @@ static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
     // --- Binary mode ---
     if (p.binary_format) {
         std::ofstream file(p.filename, std::ios::binary);
-        if (!file.is_open()) { errMsg = L"file"; return false; }
+        if (!file.is_open()) {
+            errMsg = L"file";
+            if (crng) { rng_free(crng); delete crng; }
+            if (cpprng) delete cpprng;
+            return false;
+        }
 
         for (size_t i = 0; i < p.serie_count; ++i) {
-            double r = rng.generate();
+            double r = genVal();
             r = p.serie_min + r * (p.serie_max - p.serie_min);
 
             if (p.output_double) {
@@ -124,13 +183,18 @@ static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
     // --- Text mode ---
     else {
         std::ofstream file(p.filename);
-        if (!file.is_open()) { errMsg = L"file"; return false; }
+        if (!file.is_open()) {
+            errMsg = L"file";
+            if (crng) { rng_free(crng); delete crng; }
+            if (cpprng) delete cpprng;
+            return false;
+        }
 
         if (p.output_double)
             file << std::fixed << std::setprecision(15);
 
         for (size_t i = 0; i < p.serie_count; ++i) {
-            double r = rng.generate();
+            double r = genVal();
             r = p.serie_min + r * (p.serie_max - p.serie_min);
 
             if (p.output_double) {
@@ -149,6 +213,10 @@ static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
                 progressFn(i + 1);
         }
     }
+
+    // ── Очистка генератора ──
+    if (crng) { rng_free(crng); delete crng; }
+    if (cpprng) delete cpprng;
     return true;
 }
 
@@ -178,6 +246,11 @@ static int RunCLI(int argc, wchar_t* argv[]) {
             else if (v == L"dword" || v == L"32") p.number_size = NumberSize::DWord;
             else                                  p.number_size = NumberSize::DWord;
         }
+        else if (arg == L"-e" || arg == L"--engine") {
+            std::wstring v = getNext();
+            if (v == L"c" || v == L"C") p.engine = EngineType::C;
+            else                         p.engine = EngineType::CPP;
+        }
         else if (arg == L"-h" || arg == L"--help" || arg == L"/?") {
             std::wcout << L"Rand++ CLI mode (CascadePRNG)\n"
                 << L"Usage: Rand++.exe [options]\n\n"
@@ -188,8 +261,9 @@ static int RunCLI(int argc, wchar_t* argv[]) {
                 << L"  -o, --output FILE   Output filename (default: output.bin)\n"
                 << L"  -t, --type TYPE     double or int (default: int)\n"
                 << L"  -f, --format FMT    bin or txt (default: bin)\n"
-                << L"  -s, --size SIZE     byte, word, dword (default: dword)\n"
+                << L"  -s, --size SIZE     byte, word, dword (default: dword) in bits\n"
                 << L"  -p, --period N      Rotation period in years (default: 42)\n"
+                << L"  -e, --engine ENG    cpp or c (default: cpp)\n"
                 << L"  -h, --help          Show this help\n";
             return 0;
         }
@@ -200,7 +274,8 @@ static int RunCLI(int argc, wchar_t* argv[]) {
         p.filename = GetExecutableDirectory() + L"\\" + p.filename;
 
     std::wcout << L"Generating " << p.serie_count << L" values"
-        << L" (type=" << (p.output_double ? L"double" : L"int")
+        << L" (engine=" << EngineToStr(p.engine)
+        << L", type=" << (p.output_double ? L"double" : L"int")
         << L", format=" << (p.binary_format ? L"bin" : L"txt")
         << L", size=" << SizeToStr(p.number_size)
         << L", period=" << p.period
@@ -293,13 +368,17 @@ static INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
         for (auto s : maxes)
             SendDlgItemMessageW(hDlg, IDC_SERIE_MAX, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
 
-        const wchar_t* periods[] = {  L"73.8" };
+        const wchar_t* periods[] = { L"73.8" };
         for (auto s : periods)
             SendDlgItemMessageW(hDlg, IDC_SERIES_PERIOD, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
 
         SetDlgItemTextW(hDlg, IDC_SERIE_MAX, L"0");
         SetDlgItemTextW(hDlg, IDC_SERIE_MIN, L"0");
         SetDlgItemTextW(hDlg, IDC_SERIES_PERIOD, L"42");
+
+        // Движок по умолчанию — C++
+        CheckRadioButton(hDlg, IDC_ENGINE_CPP, IDC_ENGINE_C, IDC_ENGINE_CPP);
+
         return TRUE;
     }
 
@@ -341,6 +420,10 @@ static INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 
             p->output_double = IsDlgButtonChecked(hDlg, IDC_TYPE_DOUBLE) == BST_CHECKED;
             p->binary_format = IsDlgButtonChecked(hDlg, IDC_TYPE_BINARY) == BST_CHECKED;
+
+            // ── Чтение выбора движка ──
+            p->engine = (IsDlgButtonChecked(hDlg, IDC_ENGINE_C) == BST_CHECKED)
+                ? EngineType::C : EngineType::CPP;
 
             if (IsDlgButtonChecked(hDlg, IDC_TYPE_BYTE) == BST_CHECKED) p->number_size = NumberSize::Byte;
             else if (IsDlgButtonChecked(hDlg, IDC_TYPE_WORD) == BST_CHECKED) p->number_size = NumberSize::Word;

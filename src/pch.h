@@ -10,16 +10,5 @@
 // Добавьте сюда заголовочные файлы для предварительной компиляции
 #include "framework.h"
 
-#define APPLICATION
-
-class  RNGAbstract
-{
-public:
-	virtual double generate(size_t size) = 0;
-	virtual size_t get_period() = 0;
-};
-
-
-
 
 #endif //PCH_H

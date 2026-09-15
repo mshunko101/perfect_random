@@ -179,7 +179,7 @@ jobs:
           "SHORT_SHA=$short" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding ASCII
 
       - name: Create Release and Upload Asset
-        uses: softprops/action-gh-release@v3.0.3
+        uses: softprops/action-gh-release@v2
         if: github.event_name == 'release'
         with:
           tag_name: ${{ github.event.release.tag_name }}

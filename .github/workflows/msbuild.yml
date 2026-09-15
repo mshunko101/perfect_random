@@ -72,7 +72,7 @@ jobs:
       - name: Compile and run speed benchmark
         run: |
           # Компилируем bench_speed.cpp (предполагаем, что он лежит в tests/)
-          cl /std:c++17 /O2 /EHsc /I. tests/bench_speed.cpp /Fe:bench_speed.exe
+          cl /std:c++17 /O2 /EHsc /I. tests/bench_speed/bench_speed.cpp /Fe:bench_speed.exe
           if (-not (Test-Path "bench_speed.exe")) {
             Write-Error "Компиляция bench_speed.exe не удалась!"
             exit 1

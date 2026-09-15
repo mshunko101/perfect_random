@@ -64,7 +64,7 @@ jobs:
           }
           Write-Host "C++ unit tests PASSED"
 
-      # ── НОВОЕ: Компиляция и запуск бенчмарка скорости ──
+      # ── Компиляция и запуск бенчмарка скорости ──
       - name: Setup MSVC Developer Environment
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -72,45 +72,27 @@ jobs:
 
       - name: Compile and run speed benchmark
         run: |
-          # Компилируем bench_speed.cpp (предполагаем, что он лежит в tests/)
           cl /std:c++17 /O2 /EHsc /I. tests/bench_speed/bench_speed.cpp /Fe:bench_speed.exe
           if (-not (Test-Path "bench_speed.exe")) {
             Write-Error "Компиляция bench_speed.exe не удалась!"
             exit 1
           }
-          # Запускаем на 1 млрд чисел, вывод в файл
-          ./bench_speed.exe 1000000000 > benchmark_report.txt
+          ./bench_speed.exe 33554432 > benchmark_report.txt
           Write-Host "===== BENCHMARK REPORT ====="
           Get-Content benchmark_report.txt
 
       - name: Generate test data (CLI mode) CPP
         run: |
           $outputFileCpp = Join-Path $PWD "test_datacpp.bin"
-          Write-Host "Generating test data to: $outputFileCpp"
-          $genExe = ".\src\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}\Rand++.exe"
-          if (-not (Test-Path $genExe)) {
-            $genExe = Get-ChildItem -Path ".\src" -Filter "Rand++.exe" -Recurse | Select-Object -First 1 | ForEach-Object { $_.FullName }
-            if (-not $genExe) {
-              Write-Error "Rand++.exe не найден!"
-              exit 1
-            }
-            Write-Host "Rand++.exe найден: $genExe"
-          }
+          $genExe = Get-ChildItem -Path ".\src" -Filter "Rand++.exe" -Recurse | Select-Object -First 1 | ForEach-Object { $_.FullName }
+          if (-not $genExe) { Write-Error "Rand++.exe не найден!"; exit 1 }
           & $genExe -a 0 -b 256 -n 2000000 -p 73.8 -f bin -s 8 -e cpp -o $outputFileCpp
 
       - name: Generate test data (CLI mode) C
         run: |
           $outputFileC = Join-Path $PWD "test_datac.bin"
-          Write-Host "Generating test data to: $outputFileC"
-          $genExe = ".\src\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}\Rand++.exe"
-          if (-not (Test-Path $genExe)) {
-            $genExe = Get-ChildItem -Path ".\src" -Filter "Rand++.exe" -Recurse | Select-Object -First 1 | ForEach-Object { $_.FullName }
-            if (-not $genExe) {
-              Write-Error "Rand++.exe не найден!"
-              exit 1
-            }
-            Write-Host "Rand++.exe найден: $genExe"
-          }
+          $genExe = Get-ChildItem -Path ".\src" -Filter "Rand++.exe" -Recurse | Select-Object -First 1 | ForEach-Object { $_.FullName }
+          if (-not $genExe) { Write-Error "Rand++.exe не найден!"; exit 1 }
           & $genExe -a 0 -b 256 -n 2000000 -p 73.8 -f bin -s 8 -e c -o $outputFileC
 
       - name: Set up Python
@@ -136,7 +118,6 @@ jobs:
           Copy-Item -Path "LICENSE" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "perfect_random.hpp" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "perfect_random_c.h" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
-          # ── НОВОЕ: копируем отчёт бенчмарка ──
           Copy-Item -Path "benchmark_report.txt" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           if (Test-Path "perfect_random_logo.jpeg") {
             Copy-Item -Path "perfect_random_logo.jpeg" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
@@ -148,31 +129,25 @@ jobs:
         run: |
           $zipPath = "${{ env.ARTIFACTS_DIR }}\perfect-random.zip"
           $expectedPath = ".\src\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}"
-
           $exeFiles = Get-ChildItem -Path $expectedPath -Filter "*.exe" -Recurse -File
           if ($exeFiles.Count -eq 0) {
-            Write-Host "Не найдено в $expectedPath — ищем рекурсивно по src..."
             $exeFiles = Get-ChildItem -Path ".\src" -Filter "*.exe" -Recurse -File
           }
-
           if ($exeFiles.Count -eq 0) {
             Write-Error "Ни одного .exe не найдено!"
             exit 1
           }
-
           foreach ($f in $exeFiles) {
-            Write-Host "Копирование: $($f.FullName)"
             Copy-Item -Path $f.FullName -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           }
-
           Compress-Archive -Path "${{ env.ARTIFACTS_DIR }}\*" -DestinationPath $zipPath -Force
           Write-Host "Архив создан: $zipPath"
+          [System.IO.Compression.ZipFile]::OpenRead($zipPath).Entries | ForEach-Object { Write-Host "  $($_.FullName)" }
 
-          [System.IO.Compression.ZipFile]::OpenRead($zipPath).Entries |
-            ForEach-Object { Write-Host "  $($_.FullName)" }
-
+      # ── ТОЛЬКО при событии release: создать релиз и загрузить ассеты ──
       - name: Calculate short commit hash
         id: short-sha
+        if: github.event_name == 'release'
         run: |
           $sha = "${{ github.sha }}"
           $short = $sha.Substring(0, 7)
@@ -201,27 +176,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Cleanup
         if: always()
         run: |
           if (Test-Path ${{ env.ARTIFACTS_DIR }}) {
             Remove-Item -Path ${{ env.ARTIFACTS_DIR }} -Recurse -Force
-            Write-Host "Временные файлы очищены"
           }
-          if (Test-Path "test_datacpp.bin") {
-            Remove-Item -Path "test_datacpp.bin" -Force
-          }
-          if (Test-Path "test_datac.bin") {
-            Remove-Item -Path "test_datac.bin" -Force
-          }
-          # ── НОВОЕ: чистим за бенчмарком ──
-          if (Test-Path "bench_speed.exe") {
-            Remove-Item -Path "bench_speed.exe" -Force
-          }
-          if (Test-Path "benchmark_report.txt") {
-            Remove-Item -Path "benchmark_report.txt" -Force
-          }
-          if (Test-Path "bench_speed.obj") {
-            Remove-Item -Path "bench_speed.obj" -Force
+          foreach ($file in @("test_datacpp.bin","test_datac.bin","bench_speed.exe","benchmark_report.txt","bench_speed.obj")) {
+            if (Test-Path $file) { Remove-Item -Path $file -Force }
           }

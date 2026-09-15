@@ -181,7 +181,7 @@ def main():
 
     # Convert to bit sequence as bytes (each byte is 0 or 1)
     bits = bytes([(byte >> (7 - bit_pos)) & 1 for byte in data for bit_pos in range(8)])
-    bits = bits[:4000000000]  
+    bits = bits[:400000000]  
     print(f"Extracted {len(bits)} bits\n")
 
     results = []

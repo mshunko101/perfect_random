@@ -134,7 +134,7 @@ jobs:
           Copy-Item -Path "README.md" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "LICENSE" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "perfect_random.hpp" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
-          Copy-Item -Path "perfect_random.h" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          Copy-Item -Path "perfect_random_c.h" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           # ── НОВОЕ: копируем отчёт бенчмарка ──
           Copy-Item -Path "benchmark_report.txt" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           if (Test-Path "perfect_random_logo.jpeg") {

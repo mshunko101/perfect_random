@@ -8,7 +8,7 @@
 ![Crypto](https://img.shields.io/badge/Crypto-NOT%20CSPRNG-red.svg)
 ![Quasi-MC](https://img.shields.io/badge/Quasi--MC-not%20applicable-red.svg)
 
-
+![C/C++](https://img.shields.io/badge/C%20%7C%20C%2B%2B-99%20%7C%2017-blue.svg)
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
 ![Header-only](https://img.shields.io/badge/Header--only-yes-success.svg)
 [![Release](https://img.shields.io/github/v/release/MSHUNKO101/perfect_random)](https://github.com/MSHUNKO101/perfect_random/releases)

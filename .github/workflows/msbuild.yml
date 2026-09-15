@@ -96,7 +96,7 @@ jobs:
             }
             Write-Host "Rand++.exe найден: $genExe"
           }
-          & $genExe -a 0 -b 256 -n 134217728 -p 73.8 -f bin -s 8 -e cpp -o $outputFileCpp
+          & $genExe -a 0 -b 256 -n 5000000 -p 73.8 -f bin -s 8 -e cpp -o $outputFileCpp
 
       - name: Generate test data (CLI mode) C
         run: |
@@ -111,7 +111,7 @@ jobs:
             }
             Write-Host "Rand++.exe найден: $genExe"
           }
-          & $genExe -a 0 -b 256 -n 134217728 -p 73.8 -f bin -s 8 -e c -o $outputFileC
+          & $genExe -a 0 -b 256 -n 5000000 -p 73.8 -f bin -s 8 -e c -o $outputFileC
 
       - name: Set up Python
         uses: actions/setup-python@v5

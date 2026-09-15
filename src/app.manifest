@@ -5,7 +5,7 @@
       <assemblyIdentity
         type="win32"
         name="Microsoft.Windows.Common-Controls"
-        version="6.1.0.0"
+        version="6.0.0.0"
         processorArchitecture="*"
         publicKeyToken="6595b64144ccf1df"/>
     </dependentAssembly>

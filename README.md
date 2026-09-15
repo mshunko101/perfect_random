@@ -1,16 +1,11 @@
 
 # perfect_random
 
-
-![Monte Carlo](https://img.shields.io/badge/Monte%20Carlo-ready-brightgreen.svg)
-![Simulations](https://img.shields.io/badge/Simulations-ready-brightgreen.svg)
-![Games](https://img.shields.io/badge/Games-ready-brightgreen.svg)
-![Crypto](https://img.shields.io/badge/Crypto-NOT%20CSPRNG-red.svg)
-![Quasi-MC](https://img.shields.io/badge/Quasi--MC-not%20applicable-red.svg)
-
+![Speed: moderate](https://img.shields.io/badge/Speed-moderate-orange) ![Tests: passed](https://img.shields.io/badge/Tests-passed-brightgreen)
 ![C/C++](https://img.shields.io/badge/C%20%7C%20C%2B%2B-99%20%7C%2017-blue.svg)
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
 ![Header-only](https://img.shields.io/badge/Header--only-yes-success.svg)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-lightgrey.svg)
 [![Release](https://img.shields.io/github/v/release/MSHUNKO101/perfect_random)](https://github.com/MSHUNKO101/perfect_random/releases)
 [![License](https://img.shields.io/github/license/MSHUNKO101/perfect_random)](LICENSE)
 
@@ -19,10 +14,13 @@
 ![PractRand](https://img.shields.io/badge/PractRand-16%20GB%20PASS-brightgreen.svg)
 ![Nonlinear](https://img.shields.io/badge/architecture-nonlinear-orange.svg)
 
+![Monte Carlo](https://img.shields.io/badge/Monte%20Carlo-ready-brightgreen.svg)
+![Simulations](https://img.shields.io/badge/Simulations-ready-brightgreen.svg)
+![Games](https://img.shields.io/badge/Games-ready-brightgreen.svg)
+![Crypto](https://img.shields.io/badge/Crypto-NOT%20CSPRNG-red.svg)
+![Quasi-MC](https://img.shields.io/badge/Quasi--MC-not%20applicable-red.svg)
 
-![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-lightgrey.svg)
-![TestU01](https://img.shields.io/badge/TestU01-1.2.3-blue.svg)
-![PractRand](https://img.shields.io/badge/PractRand-0.94-blue.svg)
+
 
 
 ## ⚠ Важно: ОПЖ и связанность

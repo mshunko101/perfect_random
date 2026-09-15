@@ -33,7 +33,7 @@ extern "C" {
 #undef MAX_HISTORY_SZ
 }
 
-
+#include <chrono>
 #include <commctrl.h>
 #include <string>
 #include <fstream>
@@ -54,6 +54,7 @@ extern "C" {
 #define WM_UPDATE_PROGRESS   (WM_APP + 1)
 #define WM_TASK_COMPLETE     (WM_APP + 2)
 #define WM_TASK_ERROR        (WM_APP + 3)
+#define WM_UPDATE_SPEED     (WM_APP + 4) 
 
 // ── Globals ─────────────────────────────────────────────────────
 static HINSTANCE g_hInstance = nullptr;
@@ -102,10 +103,8 @@ static std::wstring EngineToStr(EngineType e) {
     return (e == EngineType::C) ? L"C" : L"C++";
 }
 
-
-// ── Shared generation core ──────────────────────────────────────
 static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
-    std::function<void(size_t)> progressFn = nullptr) {
+    std::function<void(size_t, double)> progressFn = nullptr) {  // ← double = МБ/с
     if (p.serie_count == 0) { errMsg = L"count";  return false; }
     if (p.serie_min >= p.serie_max) { errMsg = L"minmax"; return false; }
 
@@ -124,7 +123,6 @@ static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
         genVal = [cpprng]() { return cpprng->generate(); };
     }
 
-    // Сколько байт тянем из генератора за одно число
     size_t pull_size;
     if (p.output_double) {
         pull_size = 8;
@@ -139,6 +137,19 @@ static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
 
     const size_t updateInterval = (p.serie_count >= 100)
         ? p.serie_count / 100 : 1;
+
+    // ── ДОБАВЛЕНО: таймер и лямбда для расчёта скорости ──
+    auto t_start = std::chrono::steady_clock::now();
+    auto reportProgress = [&](size_t i) {
+        if (progressFn && (i + 1) % updateInterval == 0) {
+            auto t_now = std::chrono::steady_clock::now();
+            double elapsed = std::chrono::duration<double>(t_now - t_start).count();
+            double bytes_written = static_cast<double>(i + 1) * pull_size;
+            double speed_mbps = (elapsed > 0.0)
+                ? (bytes_written / elapsed / (1024.0 * 1024.0)) : 0.0;
+            progressFn(i + 1, speed_mbps);
+        }
+        };
 
     // --- Binary mode ---
     if (p.binary_format) {
@@ -176,8 +187,7 @@ static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
                 }
                 }
             }
-            if (progressFn && (i + 1) % updateInterval == 0)
-                progressFn(i + 1);
+            reportProgress(i);  // ← ЗАМЕНА: было progressFn && ... % updateInterval
         }
     }
     // --- Text mode ---
@@ -209,16 +219,16 @@ static bool GenerateCore(const GenParams& p, std::wstring& errMsg,
                 }
             }
             if (i < p.serie_count - 1) file << "\n";
-            if (progressFn && (i + 1) % updateInterval == 0)
-                progressFn(i + 1);
+            reportProgress(i);  // ← ЗАМЕНА
         }
     }
 
-    // ── Очистка генератора ──
+
     if (crng) { rng_free(crng); delete crng; }
     if (cpprng) delete cpprng;
     return true;
 }
+
 
 
 // ── CLI mode ────────────────────────────────────────────────────
@@ -282,7 +292,14 @@ static int RunCLI(int argc, wchar_t* argv[]) {
         << L") -> " << p.filename << std::endl;
 
     std::wstring errMsg;
-    if (GenerateCore(p, errMsg)) {
+    auto cliProgress = [](size_t processed, double speed_mbps) {
+        fprintf(stderr, "\r  %zu значений  |  %.2f МБ/с",
+            processed, speed_mbps);
+        fflush(stderr);
+        };
+
+    if (GenerateCore(p, errMsg, cliProgress)) {
+        fprintf(stderr, "\n");
         std::wcout << L"Done: " << p.filename << std::endl;
         return 0;
     }
@@ -294,18 +311,27 @@ static int RunCLI(int argc, wchar_t* argv[]) {
     return 1;
 }
 
-// ── Worker thread (GUI mode) ────────────────────────────────────
+
 static void GenerateThread(GenParams* params) {
     HWND hDlg = params->hDlg;
 
-    auto progressFn = [hDlg, params](size_t processed) {
-        if (IsWindow(hDlg))
+    // ← ИЗМЕНЕНО: теперь принимает (processed, speed_mbps)
+    auto progressFn = [hDlg, params](size_t processed, double speed_mbps) {
+        if (IsWindow(hDlg)) {
             PostMessageW(hDlg, WM_UPDATE_PROGRESS,
                 static_cast<WPARAM>(processed * 100 / params->serie_count), 0);
+            // Скорость кодируем как int*100 (2 знака после запятой)
+            PostMessageW(hDlg, WM_UPDATE_SPEED,
+                static_cast<WPARAM>(static_cast<int>(speed_mbps * 100.0)), 0);
+        }
+        fprintf(stderr, "\r  %zu значений  |  %.2f МБ/с",
+            processed, speed_mbps);
+        fflush(stderr);
         };
 
     std::wstring errMsg;
     bool ok = GenerateCore(*params, errMsg, progressFn);
+
 
     if (!ok) {
         if (IsWindow(hDlg)) {
@@ -323,6 +349,7 @@ static void GenerateThread(GenParams* params) {
     }
     delete params;
 }
+
 
 // ── About dialog ─────────────────────────────────────────────────
 static INT_PTR CALLBACK AboutDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM) {
@@ -372,16 +399,23 @@ static INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
         for (auto s : periods)
             SendDlgItemMessageW(hDlg, IDC_SERIES_PERIOD, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
 
-        SetDlgItemTextW(hDlg, IDC_SERIE_MAX, L"0");
         SetDlgItemTextW(hDlg, IDC_SERIE_MIN, L"0");
-        SetDlgItemTextW(hDlg, IDC_SERIES_PERIOD, L"42");
+        SetDlgItemTextW(hDlg, IDC_SERIE_MAX, L"256");
+        SetDlgItemTextW(hDlg, IDC_SERIES_PERIOD, L"73.8");
+        SetDlgItemTextW(hDlg, IDC_SERIES_COUNT, L"17179869184");
+        CheckRadioButton(hDlg, IDC_ENGINE_CPP, IDC_ENGINE_C, IDC_ENGINE_CPP);
+        CheckRadioButton(hDlg, IDC_TYPE_INTEGER, IDC_TYPE_DOUBLE, IDC_TYPE_INTEGER);
+        CheckRadioButton(hDlg, IDC_TYPE_BINARY, IDC_TYPE_BINARY, IDC_TYPE_BINARY);
+        CheckRadioButton(hDlg, IDC_TYPE_BYTE, IDC_TYPE_DWORD, IDC_TYPE_BYTE);
+
+        SetDlgItemTextW(hDlg, IDC_SPEED_LABEL, L"");
+        return TRUE;
 
         // Движок по умолчанию — C++
         CheckRadioButton(hDlg, IDC_ENGINE_CPP, IDC_ENGINE_C, IDC_ENGINE_CPP);
 
         return TRUE;
     }
-
     case WM_SYSCOMMAND:
         if ((wParam & 0xFFF0) == IDM_ABOUTBOX) {
             DialogBoxW(g_hInstance, MAKEINTRESOURCEW(IDD_ABOUTBOX), hDlg, AboutDlgProc);
@@ -460,6 +494,18 @@ static INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
         SendDlgItemMessageW(hDlg, IDC_PROGRESS_BAR, PBM_SETPOS, 0, 0);
         return TRUE;
 
+        // ── ДОБАВЛЕНО: отображение скорости ──
+    case WM_UPDATE_SPEED: {
+        double speed_mbps = static_cast<double>(wParam) / 100.0;
+        wchar_t speedText[64];
+        if (speed_mbps < 1.0)
+            swprintf_s(speedText, L"Скорость: %.2f КБ/с", speed_mbps * 1024.0);
+        else
+            swprintf_s(speedText, L"Скорость: %.2f МБ/с", speed_mbps);
+        SetDlgItemTextW(hDlg, IDC_SPEED_LABEL, speedText);
+        return TRUE;
+    }
+
     case WM_TASK_ERROR: {
         std::wstring* pErr = reinterpret_cast<std::wstring*>(lParam);
         if (pErr) {
@@ -495,7 +541,7 @@ static INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
     return FALSE;
 }
 
-// ── Entry point ─────────────────────────────────────────────────
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int) {
     g_hInstance = hInstance;
 

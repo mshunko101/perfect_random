@@ -179,7 +179,7 @@ jobs:
           "SHORT_SHA=$short" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding ASCII
 
       - name: Create Release and Upload Asset
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v3.0.3
         if: github.event_name == 'release'
         with:
           tag_name: ${{ github.event.release.tag_name }}
@@ -190,13 +190,17 @@ jobs:
             **Версия:** ${{ github.event.release.tag_name }}
             **Коммит:** `${{ steps.short-sha.outputs.SHORT_SHA }}`
             **Полный SHA:** ${{ github.sha }}
-            
+
             Отчёт о бенчмарке скорости смотри в приложенном файле `benchmark_report.txt`.
           files: |
             ${{ env.ARTIFACTS_DIR }}/perfect-random.zip
             ${{ env.ARTIFACTS_DIR }}/benchmark_report.txt
           draft: false
           prerelease: false
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Cleanup
         if: always()

@@ -42,8 +42,9 @@
 
 ГПСЧ честно бросает кубик. Каскад решает, куда полетят осколки.
 
-**Ссылки:**
 
+<details><summary>Детали</summary>
+  
 [1. Оценка вероятности покрытия мишеней методом Монте-Карло.](https://engee.com/community/ru/catalogs/projects/otsenka-veroiatnosti-pokrytiia-mishenei-metodom-monte-karlo)
 
 [2. Двумерная структура отображения 2/3: каскад и симметрия](https://engee.com/community/ru/catalogs/projects/dvumernaia-struktura-otobrazheniia-2-3-kaskad-i-simmetriia)
@@ -63,6 +64,8 @@
 [8a. ζ‑каскад: торможение и потеря формы](https://engee.com/community/ru/catalogs/projects/z-kaskad-tormozhenie-i-poteria-formy)
 
 [9. Каскадная геометрия и акустика Горькова, в точке "Солнце"](https://engee.com/community/ru/catalogs/projects/kaskadnaia-geometriia-i-akustika-gorkova-v-tochke-solntse)
+
+</details>
 
 
 ![Логотип](perfect_random_logo.jpeg) 

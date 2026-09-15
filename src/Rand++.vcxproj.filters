@@ -33,7 +33,7 @@
     <ClInclude Include="..\perfect_random.hpp">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="..\perfect_random_с.h">
+    <ClInclude Include="..\perfect_random_c.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

@@ -186,7 +186,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\perfect_random.hpp" />
-    <ClInclude Include="..\perfect_random_с.h" />
+    <ClInclude Include="..\perfect_random_c.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rand++.h" />

@@ -18,7 +18,7 @@ extern "C" {
 #define FantasyCore      CFantasyCore
 #define Dimension        CDimension
 #define HashSet32        CHashSet32
-#include "../../perfect_random_с.h"
+#include "../../perfect_random_c.h"
 #undef RNG
 #undef CascadePRNG
 #undef Point

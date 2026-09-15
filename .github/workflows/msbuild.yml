@@ -63,6 +63,25 @@ jobs:
           }
           Write-Host "C++ unit tests PASSED"
 
+      # ── НОВОЕ: Компиляция и запуск бенчмарка скорости ──
+      - name: Setup MSVC Developer Environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Compile and run speed benchmark
+        run: |
+          # Компилируем bench_speed.cpp (предполагаем, что он лежит в tests/)
+          cl /std:c++17 /O2 /EHsc /I. tests/bench_speed.cpp /Fe:bench_speed.exe
+          if (-not (Test-Path "bench_speed.exe")) {
+            Write-Error "Компиляция bench_speed.exe не удалась!"
+            exit 1
+          }
+          # Запускаем на 1 млрд чисел, вывод в файл
+          ./bench_speed.exe 1000000000 > benchmark_report.txt
+          Write-Host "===== BENCHMARK REPORT ====="
+          Get-Content benchmark_report.txt
+
       - name: Generate test data (CLI mode) CPP
         run: |
           $outputFileCpp = Join-Path $PWD "test_datacpp.bin"
@@ -93,7 +112,6 @@ jobs:
           }
           & $genExe -a 0 -b 256 -n 134217728 -p 73.8 -f bin -s 8 -e c -o $outputFileC
 
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -104,11 +122,9 @@ jobs:
 
       - name: Run NIST CPP statistical tests
         run: python tests/run_nist_tests.py test_datacpp.bin
-        # Если скрипт возвращает exit 1 при FAIL, пайплайн остановится здесь
 
       - name: Run NIST C statistical tests
         run: python tests/run_nist_tests.py test_datac.bin
-        # Если скрипт возвращает exit 1 при FAIL, пайплайн остановится здесь
 
       - name: Create artifacts directory
         run: New-Item -ItemType Directory -Force -Path ${{ env.ARTIFACTS_DIR }}
@@ -118,8 +134,9 @@ jobs:
           Copy-Item -Path "README.md" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "LICENSE" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "perfect_random.hpp" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
-          Copy-Item -Path "perfect_random_с.h" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
-          # perfect_random_logo.jpeg копируем только если он есть
+          Copy-Item -Path "perfect_random.h" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          # ── НОВОЕ: копируем отчёт бенчмарка ──
+          Copy-Item -Path "benchmark_report.txt" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           if (Test-Path "perfect_random_logo.jpeg") {
             Copy-Item -Path "perfect_random_logo.jpeg" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           } else {
@@ -160,7 +177,6 @@ jobs:
           $short = $sha.Substring(0, 7)
           "SHORT_SHA=$short" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding ASCII
 
-      # Создаём релиз только при событии release
       - name: Create Release and Upload Asset
         uses: softprops/action-gh-release@v3
         if: github.event_name == 'release'
@@ -173,7 +189,11 @@ jobs:
             **Версия:** ${{ github.event.release.tag_name }}
             **Коммит:** `${{ steps.short-sha.outputs.SHORT_SHA }}`
             **Полный SHA:** ${{ github.sha }}
-          files: ${{ env.ARTIFACTS_DIR }}/perfect-random.zip
+            
+            Отчёт о бенчмарке скорости смотри в приложенном файле `benchmark_report.txt`.
+          files: |
+            ${{ env.ARTIFACTS_DIR }}/perfect-random.zip
+            ${{ env.ARTIFACTS_DIR }}/benchmark_report.txt
           draft: false
           prerelease: false
 
@@ -189,4 +209,14 @@ jobs:
           }
           if (Test-Path "test_datac.bin") {
             Remove-Item -Path "test_datac.bin" -Force
+          }
+          # ── НОВОЕ: чистим за бенчмарком ──
+          if (Test-Path "bench_speed.exe") {
+            Remove-Item -Path "bench_speed.exe" -Force
+          }
+          if (Test-Path "benchmark_report.txt") {
+            Remove-Item -Path "benchmark_report.txt" -Force
+          }
+          if (Test-Path "bench_speed.obj") {
+            Remove-Item -Path "bench_speed.obj" -Force
           }

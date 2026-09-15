@@ -169,7 +169,6 @@ jobs:
             Отчёт о бенчмарке скорости смотри в приложенном файле `benchmark_report.txt`.
           files: |
             ${{ env.ARTIFACTS_DIR }}/perfect-random.zip
-            ${{ env.ARTIFACTS_DIR }}/benchmark_report.txt
           draft: false
           prerelease: false
           fail_on_unmatched_files: true

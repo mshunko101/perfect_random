@@ -44,6 +44,28 @@
 
 ГПСЧ честно бросает кубик. Каскад решает, куда полетят осколки.
 
+**Ссылки:**
+
+[1. Оценка вероятности покрытия мишеней методом Монте-Карло.](https://engee.com/community/ru/catalogs/projects/otsenka-veroiatnosti-pokrytiia-mishenei-metodom-monte-karlo)
+
+[2. Двумерная структура отображения 2/3: каскад и симметрия](https://engee.com/community/ru/catalogs/projects/dvumernaia-struktura-otobrazheniia-2-3-kaskad-i-simmetriia)
+
+[3. Трёхтактный цикл 4/9: самосогласованность и точный возврат](https://engee.com/community/ru/catalogs/projects/trekhtaktnyi-tsikl-4-9-samosoglasovannost-i-tochnyi-vozvrat)
+
+[4. Каскадная развёртка из неустойчивого истока: фазы и спектр](https://engee.com/community/ru/catalogs/projects/kaskadnaia-razvertka-iz-neustoichivogo-istoka-fazy-i-spektr)
+
+[5. Каскадный каркас: от субстракта к сознанию через один каскад](https://engee.com/community/ru/catalogs/projects/kaskadnyi-karkas-ot-substrakta-k-soznaniiu-cherez-odin-kaskad)
+
+[6. Многочастичная симуляция стабильности кластеров](https://engee.com/community/ru/catalogs/projects/mnogochastichnaia-simuliatsiia-stabilnosti-klasterov)
+
+[7. Шаг 50: орбита Земли, число Авогадро и граница стабильности](https://engee.com/community/ru/catalogs/projects/shag-50-orbita-zemli-chislo-avogadro-i-granitsa-stabilnosti)
+
+[8. Каскад и ОТО: ζ-порог как механизм замедления времени](https://engee.com/community/ru/catalogs/projects/kaskad-i-oto-z-porog-kak-mekhanizm-zamedleniia-vremeni)
+
+[8a. ζ‑каскад: торможение и потеря формы](https://engee.com/community/ru/catalogs/projects/z-kaskad-tormozhenie-i-poteria-formy)
+
+[9. Каскадная геометрия и акустика Горькова, в точке "Солнце"](https://engee.com/community/ru/catalogs/projects/kaskadnaia-geometriia-i-akustika-gorkova-v-tochke-solntse)
+
 
 ![Логотип](perfect_random_logo.jpeg) 
 

@@ -64,23 +64,6 @@ jobs:
           }
           Write-Host "C++ unit tests PASSED"
 
-      # ── Компиляция и запуск бенчмарка скорости ──
-      - name: Setup MSVC Developer Environment
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
-
-      - name: Compile and run speed benchmark
-        run: |
-          cl /std:c++17 /O2 /EHsc /I. tests/bench_speed/bench_speed.cpp /Fe:bench_speed.exe
-          if (-not (Test-Path "bench_speed.exe")) {
-            Write-Error "Компиляция bench_speed.exe не удалась!"
-            exit 1
-          }
-          ./bench_speed.exe 33554432 > benchmark_report.txt
-          Write-Host "===== BENCHMARK REPORT ====="
-          Get-Content benchmark_report.txt
-
       - name: Generate test data (CLI mode) CPP
         run: |
           $outputFileCpp = Join-Path $PWD "test_datacpp.bin"
@@ -167,7 +150,8 @@ jobs:
             **Коммит:** `${{ steps.short-sha.outputs.SHORT_SHA }}`
             **Полный SHA:** ${{ github.sha }}
 
-            Отчёт о бенчмарке скорости смотри в приложенном файле `benchmark_report.txt`.
+            В архиве вы можете найти hpp, h  версии библиотеки, README.md, лицензию, а так же logo.
+            Подпись sha256 выполняется после прохождения тестов BigCrush, PractRand.
           files: |
             ${{ env.ARTIFACTS_DIR }}/perfect-random.zip
           draft: false

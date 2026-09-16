@@ -101,7 +101,6 @@ jobs:
           Copy-Item -Path "LICENSE" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "perfect_random.hpp" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "perfect_random_c.h" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
-          Copy-Item -Path "benchmark_report.txt" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "docs/Выбор_Б.ipynb" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           if (Test-Path "perfect_random_logo.jpeg") {
             Copy-Item -Path "perfect_random_logo.jpeg" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
@@ -166,6 +165,6 @@ jobs:
           if (Test-Path ${{ env.ARTIFACTS_DIR }}) {
             Remove-Item -Path ${{ env.ARTIFACTS_DIR }} -Recurse -Force
           }
-          foreach ($file in @("test_datacpp.bin","test_datac.bin","bench_speed.exe","benchmark_report.txt","bench_speed.obj")) {
+          foreach ($file in @("test_datacpp.bin","test_datac.bin")) {
             if (Test-Path $file) { Remove-Item -Path $file -Force }
           }

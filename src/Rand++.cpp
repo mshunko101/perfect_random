@@ -499,9 +499,9 @@ static INT_PTR CALLBACK RandDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
         double speed_mbps = static_cast<double>(wParam) / 100.0;
         wchar_t speedText[64];
         if (speed_mbps < 1.0)
-            swprintf_s(speedText, L"Скорость: %.2f КБ/с", speed_mbps * 1024.0);
+            swprintf_s(speedText, L"%.2f КБ/с", speed_mbps * 1024.0);
         else
-            swprintf_s(speedText, L"Скорость: %.2f МБ/с", speed_mbps);
+            swprintf_s(speedText, L"%.2f МБ/с", speed_mbps);
         SetDlgItemTextW(hDlg, IDC_SPEED_LABEL, speedText);
         return TRUE;
     }

@@ -119,6 +119,7 @@ jobs:
           Copy-Item -Path "perfect_random.hpp" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "perfect_random_c.h" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "benchmark_report.txt" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          Copy-Item -Path "docs/Выбор_Б.ipynb" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           if (Test-Path "perfect_random_logo.jpeg") {
             Copy-Item -Path "perfect_random_logo.jpeg" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           } else {

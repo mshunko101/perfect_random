@@ -99,12 +99,12 @@ jobs:
         run: |
           Copy-Item -Path "README.md" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           Copy-Item -Path "LICENSE" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
-          Copy-Item -Path "perfect_random.hpp" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
-          Copy-Item -Path "perfect_random_c.h" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
-          if (Test-Path "perfect_random_logo.jpeg") {
-            Copy-Item -Path "perfect_random_logo.jpeg" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          Copy-Item -Path "ГПСЧ" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          Copy-Item -Path "ГПСЧ-КРИПТО" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
+          if (Test-Path "PERFECT_RANDOM_LOGO.JPEG") {
+            Copy-Item -Path "PERFECT_RANDOM_LOGO.JPEG" -Destination "${{ env.ARTIFACTS_DIR }}" -Force
           } else {
-            Write-Warning "perfect_random_logo.jpeg не найден — пропускаем"
+            Write-Warning "PERFECT_RANDOM_LOGO.JPEG не найден — пропускаем"
           }
 
       - name: Compress build output
@@ -148,7 +148,8 @@ jobs:
             **Коммит:** `${{ steps.short-sha.outputs.SHORT_SHA }}`
             **Полный SHA:** ${{ github.sha }}
 
-            В архиве вы можете найти hpp, h  версии библиотеки, README.md, лицензию, а так же logo.
+            В архиве вы можете найти hpp, h  версии библиотеки, криптостойкую версию, а так же
+            README.md, лицензию и logo.
             Подпись sha256 выполняется после прохождения тестов BigCrush, PractRand.
           files: |
             ${{ env.ARTIFACTS_DIR }}/perfect-random.zip

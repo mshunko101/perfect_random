@@ -50,6 +50,10 @@
 #define IDC_ENGINE_CPP                  2000
 #define IDC_ENGINE_C                    2001
 #define IDC_SPEED_LABEL                 2002
+#define IDC_ENGINE_LIST                 2010    // ComboBox — выбор движка
+#define IDC_TYPE_QWORD                  2011    // RadioButton — 64-bit
+#define IDC_TYPE_LONGDOUBLE             2012   // CheckBox — long double
+
 #define IDC_STATIC                      -1
 
 

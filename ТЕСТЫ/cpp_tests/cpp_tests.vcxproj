@@ -125,6 +125,10 @@
   <ItemGroup>
     <ClCompile Include="cpp_tests.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\ВЕРСИИ\perfect_random.hpp" />
+    <ClInclude Include="..\..\ВЕРСИИ\perfect_random_c.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

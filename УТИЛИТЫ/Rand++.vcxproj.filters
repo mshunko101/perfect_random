@@ -30,10 +30,10 @@
     <ClInclude Include="pch.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="..\perfect_random.hpp">
+    <ClInclude Include="..\ВЕРСИИ\perfect_random.hpp">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="..\perfect_random_c.h">
+    <ClInclude Include="..\ВЕРСИИ\perfect_random_с.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решен
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpp_tests", "..\tests\cpp_tests\cpp_tests.vcxproj", "{7CF70C3D-9681-43FD-9A71-2A235F07B24C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpp_tests", "..\ТЕСТЫ\cpp_tests\cpp_tests.vcxproj", "{7CF70C3D-9681-43FD-9A71-2A235F07B24C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

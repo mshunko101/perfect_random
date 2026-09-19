@@ -84,54 +84,66 @@ jobs:
       # ═══════════════════════════════════════════════════════════
       #  Генерация — 3 режима × 2 движка = 6 файлов
       # ═══════════════════════════════════════════════════════════
-
+      # ── C++ Standard ──────────────────────────────────────────
       - name: Generate test data — C++ Standard
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_cpp_std.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-std -o $out
+          Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
 
+      # ── C++ Crypto ────────────────────────────────────────────
       - name: Generate test data — C++ Crypto
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_cpp_crypto.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-crypto -o $out
+          Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
 
+      # ── C++ MonteCarlo ────────────────────────────────────────
       - name: Generate test data — C++ MonteCarlo
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_cpp_mc.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-mc -o $out
+          Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
 
+      # ── C Standard ────────────────────────────────────────────
       - name: Generate test data — C Standard
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_c_std.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e c-std -o $out
+          Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
 
+      # ── C Crypto ──────────────────────────────────────────────
       - name: Generate test data — C Crypto
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_c_crypto.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e c-crypto -o $out
+          Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
 
+      # ── C MonteCarlo ──────────────────────────────────────────
       - name: Generate test data — C MonteCarlo
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_c_mc.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e c-mc -o $out
+          Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
+
 
       # ═══════════════════════════════════════════════════════════
       #  NIST SP 800-22 — 6 прогонов

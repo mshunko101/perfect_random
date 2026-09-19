@@ -4,17 +4,17 @@ on:
   push:
     branches: ["main"]
     paths:
-      - "src/**"
+      - "УТИЛИТЫ/**"
       - "*.h*"
       - "**/*.sln"
       - "**/*.vcxproj"
-      - "tests/**"
+      - "ТЕСТЫ/**"
       - ".github/workflows/msbuild.yml"
   release:
     types: [created]
 
 env:
-  SOLUTION_FILE_PATH: ./src/Rand++.sln
+  SOLUTION_FILE_PATH: ./УТИЛИТЫ/Rand++.sln
   BUILD_CONFIGURATION: Release
   BUILD_PLATFORM: x64
   ARTIFACTS_DIR: artifacts
@@ -44,10 +44,10 @@ jobs:
 
       - name: Run C++ unit tests
         run: |
-          $testExe = ".\src\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}\cpp_tests.exe"
+          $testExe = ".\ТЕСТЫ\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}\cpp_tests.exe"
           if (-not (Test-Path $testExe)) {
             Write-Host "cpp_tests.exe не найден в $testExe — ищем рекурсивно..."
-            $found = Get-ChildItem -Path ".\src" -Filter "cpp_tests.exe" -Recurse | Select-Object -First 1
+            $found = Get-ChildItem -Path ".\ТЕСТЫ" -Filter "cpp_tests.exe" -Recurse | Select-Object -First 1
             if ($found) {
               $testExe = $found.FullName
               Write-Host "Найден: $testExe"
@@ -68,7 +68,7 @@ jobs:
       - name: Locate Rand++.exe
         id: find-gen
         run: |
-          $genExe = Get-ChildItem -Path ".\src" -Filter "Rand++.exe" -Recurse | Select-Object -First 1 | ForEach-Object { $_.FullName }
+          $genExe = Get-ChildItem -Path ".\УТИЛИТЫ" -Filter "Rand++.exe" -Recurse | Select-Object -First 1 | ForEach-Object { $_.FullName }
           if (-not $genExe) { Write-Error "Rand++.exe не найден!"; exit 1 }
           Write-Host "Rand++.exe: $genExe"
           "GEN_EXE=$genExe" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding ASCII
@@ -178,10 +178,10 @@ jobs:
       - name: Compress build output
         run: |
           $zipPath = "${{ env.ARTIFACTS_DIR }}\perfect-random.zip"
-          $expectedPath = ".\src\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}"
+          $expectedPath = ".\УТИЛИТЫ\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}"
           $exeFiles = Get-ChildItem -Path $expectedPath -Filter "*.exe" -Recurse -File
           if ($exeFiles.Count -eq 0) {
-            $exeFiles = Get-ChildItem -Path ".\src" -Filter "*.exe" -Recurse -File
+            $exeFiles = Get-ChildItem -Path ".\УТИЛИТЫ" -Filter "*.exe" -Recurse -File
           }
           if ($exeFiles.Count -eq 0) {
             Write-Error "Ни одного .exe не найдено!"

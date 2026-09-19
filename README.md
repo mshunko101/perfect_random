@@ -118,11 +118,11 @@ c = splitmix64(state) mod M;   // независимый хеш 3
 |:---|:---:|:---:|:---:|:---|
 | **NIST SP 800-22** | **188/188** ✅ | **188/188** ✅ | **188/188** ✅ | 1000 потоков × 1М бит, α = 0.01 |
 | **DieHarder** | **0 FAIL** ✅ | **0 FAIL** ✅ | **0 FAIL** ✅ | ~25 тестов, psamples = 100 |
-| **BigCrush** | **160/160** ✅ | **159/160** ✅ | **159/160** ✅ | TestU01 1.2.3, seed = 42 |
+| **BigCrush** | **160/160** ✅ | **159/160** ✅ | **159/160** ✅ | TestU01 1.2.3, seed = 40 |
 
 ### NIST SP 800-22
 
-Все три режима — 188/188, ноль провалов. Crypto подтверждён на двух seed (42 и 12345).
+Все три режима — 188/188, ноль провалов. Crypto подтверждён на двух seed (40 и 12345).
 
 | Параметр | Значение |
 |:---|:---|
@@ -207,7 +207,7 @@ c = splitmix64(state) mod M;   // независимый хеш 3
 using namespace perfect_random;
 
 int main() {
-    CascadePRNG rng(42, 49, CascadePRNG::Mode::Standard);
+    CascadePRNG rng(40, 49, CascadePRNG::Mode::Standard);
 
     for (int i = 0; i < 100; i++) {
         double val = rng.generate();   // [0.0, 1.0)
@@ -219,7 +219,7 @@ int main() {
 ### Crypto — ключи, nonce
 
 ```cpp
-CascadePRNG rng(42, 49, CascadePRNG::Mode::Crypto);
+CascadePRNG rng(40, 49, CascadePRNG::Mode::Crypto);
 
 uint32_t key = rng.generate_raw();     // 31-битное raw-значение
 double val = rng.generate();           // [0.0, 1.0)
@@ -228,7 +228,7 @@ double val = rng.generate();           // [0.0, 1.0)
 ### MonteCarlo — высокая точность
 
 ```cpp
-CascadePRNG64 rng(42, 49);
+CascadePRNG64 rng(40, 49);
 
 double val = rng.generate();          // [0.0, 1.0), 61 бит точности
 uint64_t raw = rng.generate_u64();    // 61-битное raw-значение
@@ -238,7 +238,7 @@ long double ld = rng.generate_ld();   // long double
 ### UniformRandomBitGenerator (C++17)
 
 ```cpp
-CascadePRNG rng(42, 49, CascadePRNG::Mode::Crypto);
+CascadePRNG rng(40, 49, CascadePRNG::Mode::Crypto);
 
 std::uniform_int_distribution<uint32_t> dist(0, 100);
 uint32_t x = dist(rng);                // работает через operator()
@@ -247,7 +247,7 @@ uint32_t x = dist(rng);                // работает через operator()
 ### Многоуровневый RNG
 
 ```cpp
-RNG rng(42, 73.8, RNG::Mode::Crypto);  // seed, ОПЖ, режим
+RNG rng(40, 73.8, RNG::Mode::Crypto);  // seed, ОПЖ, режим
 
 double val = rng.generate();           // [0.0, 1.0)
 rng.reseed(12345);                     // каскадный ризид
@@ -259,7 +259,7 @@ rng.reseed(12345);                     // каскадный ризид
 #include "perfect_random_c.h"
 
 cascade_prng rng;
-cascade_prng_init(&rng, 42, 49, CASCADE_MODE_CRYPTO);
+cascade_prng_init(&rng, 40, 49, CASCADE_MODE_CRYPTO);
 
 double val = cascade_prng_generate(&rng);   /* [0.0, 1.0) */
 uint32_t raw = cascade_prng_generate_raw(&rng);
@@ -269,13 +269,13 @@ uint32_t raw = cascade_prng_generate_raw(&rng);
 
 ```bash
 # Standard, 1 млрд чисел, binary
-Rand++.exe -n 1000000000 -e cpp-std -s 42 -f bin -o std.bin
+Rand++.exe -n 1000000000 -e cpp-std -s 40 -f bin -o std.bin
 
 # Crypto, seed 12345
 Rand++.exe -n 1000000000 -e cpp-crypto -s 12345 -f bin -o crypto.bin
 
 # MonteCarlo, 61-бит
-Rand++.exe -n 500000000 -e cpp-mc -s 42 -f bin -o mc.bin
+Rand++.exe -n 500000000 -e cpp-mc -s 40 -f bin -o mc.bin
 ```
 
 ---
@@ -383,19 +383,6 @@ $$
 | Беспечность (игнорирование) | ~ 0 | Сбой изолирован, но брак копится |
 
 Больше != лучше. Больше = опаснее, если превышен ζ-потолок.
-
----
-
-## Файлы
-
-| Файл | Описание |
-|:---|:---|
-| `perfect_random.hpp` | C++ header-only, 3 режима, `CascadePRNG`, `CascadePRNG64`, `RNG` |
-| `perfect_random_c.h` | C-версия, header-only, 3 режима |
-| `Rand++.cpp` | CLI + Win32 UI, 6 движков |
-| `Rand++.rc` | Диалог с ComboBox |
-| `cpp_tests.cpp` | 40 тестов, ~171 запуск |
-| `test_u1_pr.cpp` | Wrapper для TestU01 / BigCrush |
 
 ---
 

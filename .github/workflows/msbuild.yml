@@ -44,10 +44,10 @@ jobs:
 
       - name: Run C++ unit tests
         run: |
-          $testExe = ".\ТЕСТЫ\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}\cpp_tests.exe"
+          $testExe = ".\УТИЛИТЫ\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}\cpp_tests.exe"
           if (-not (Test-Path $testExe)) {
             Write-Host "cpp_tests.exe не найден в $testExe — ищем рекурсивно..."
-            $found = Get-ChildItem -Path ".\ТЕСТЫ" -Filter "cpp_tests.exe" -Recurse | Select-Object -First 1
+            $found = Get-ChildItem -Path ".\УТИЛИТЫ" -Filter "cpp_tests.exe" -Recurse | Select-Object -First 1
             if ($found) {
               $testExe = $found.FullName
               Write-Host "Найден: $testExe"

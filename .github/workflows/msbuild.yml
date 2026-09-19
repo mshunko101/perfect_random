@@ -75,12 +75,14 @@ jobs:
 
       # ═══════════════════════════════════════════════════════════
       #  Генерация тестовых данных — 3 режима × 2 движка = 6 файлов
+      #  ВАЖНО: Join-Path $PWD даёт абсолютный путь, иначе Rand++.exe
+      #  записывает файл в свою директорию (GetExecutableDirectory)
       # ═══════════════════════════════════════════════════════════
 
       # ── C++ Standard ──────────────────────────────────────────
       - name: Generate test data — C++ Standard
         run: |
-          $out = "test_cpp_std.bin"
+          $out = Join-Path $PWD "test_cpp_std.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-std -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -88,7 +90,7 @@ jobs:
       # ── C++ Crypto ────────────────────────────────────────────
       - name: Generate test data — C++ Crypto
         run: |
-          $out = "test_cpp_crypto.bin"
+          $out = Join-Path $PWD "test_cpp_crypto.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-crypto -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -96,7 +98,7 @@ jobs:
       # ── C++ MonteCarlo ────────────────────────────────────────
       - name: Generate test data — C++ MonteCarlo
         run: |
-          $out = "test_cpp_mc.bin"
+          $out = Join-Path $PWD "test_cpp_mc.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-mc -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -104,7 +106,7 @@ jobs:
       # ── C Standard ────────────────────────────────────────────
       - name: Generate test data — C Standard
         run: |
-          $out = "test_c_std.bin"
+          $out = Join-Path $PWD "test_c_std.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e c-std -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -112,7 +114,7 @@ jobs:
       # ── C Crypto ──────────────────────────────────────────────
       - name: Generate test data — C Crypto
         run: |
-          $out = "test_c_crypto.bin"
+          $out = Join-Path $PWD "test_c_crypto.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e c-crypto -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -120,7 +122,7 @@ jobs:
       # ── C MonteCarlo ──────────────────────────────────────────
       - name: Generate test data — C MonteCarlo
         run: |
-          $out = "test_c_mc.bin"
+          $out = Join-Path $PWD "test_c_mc.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e c-mc -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -128,6 +130,7 @@ jobs:
 
       # ═══════════════════════════════════════════════════════════
       #  NIST SP 800-22 — 6 прогонов
+      #  ВАЖНО: директория ТЕСТЫ (кириллица), не tests
       # ═══════════════════════════════════════════════════════════
 
       - name: Set up Python
@@ -139,22 +142,22 @@ jobs:
         run: pip install sp80022suite numpy scipy
 
       - name: Run NIST — C++ Standard
-        run: python tests/run_nist_tests.py test_cpp_std.bin
+        run: python ТЕСТЫ/run_nist_tests.py test_cpp_std.bin
 
       - name: Run NIST — C++ Crypto
-        run: python tests/run_nist_tests.py test_cpp_crypto.bin
+        run: python ТЕСТЫ/run_nist_tests.py test_cpp_crypto.bin
 
       - name: Run NIST — C++ MonteCarlo
-        run: python tests/run_nist_tests.py test_cpp_mc.bin
+        run: python ТЕСТЫ/run_nist_tests.py test_cpp_mc.bin
 
       - name: Run NIST — C Standard
-        run: python tests/run_nist_tests.py test_c_std.bin
+        run: python ТЕСТЫ/run_nist_tests.py test_c_std.bin
 
       - name: Run NIST — C Crypto
-        run: python tests/run_nist_tests.py test_c_crypto.bin
+        run: python ТЕСТЫ/run_nist_tests.py test_c_crypto.bin
 
       - name: Run NIST — C MonteCarlo
-        run: python tests/run_nist_tests.py test_c_mc.bin
+        run: python ТЕСТЫ/run_nist_tests.py test_c_mc.bin
 
       # ═══════════════════════════════════════════════════════════
       #  Артефакты и релиз
@@ -243,5 +246,6 @@ jobs:
             "test_cpp_std.bin","test_cpp_crypto.bin","test_cpp_mc.bin",
             "test_c_std.bin","test_c_crypto.bin","test_c_mc.bin"
           )) {
-            if (Test-Path $file) { Remove-Item -Path $file -Force }
+            $fullPath = Join-Path $PWD $file
+            if (Test-Path $fullPath) { Remove-Item -Path $fullPath -Force }
           }

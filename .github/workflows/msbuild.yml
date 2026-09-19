@@ -80,7 +80,7 @@ jobs:
       # ── C++ Standard ──────────────────────────────────────────
       - name: Generate test data — C++ Standard
         run: |
-          $out = Join-Path $PWD "test_cpp_std.bin"
+          $out = "test_cpp_std.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-std -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -88,7 +88,7 @@ jobs:
       # ── C++ Crypto ────────────────────────────────────────────
       - name: Generate test data — C++ Crypto
         run: |
-          $out = Join-Path $PWD "test_cpp_crypto.bin"
+          $out = "test_cpp_crypto.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-crypto -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -96,7 +96,7 @@ jobs:
       # ── C++ MonteCarlo ────────────────────────────────────────
       - name: Generate test data — C++ MonteCarlo
         run: |
-          $out = Join-Path $PWD "test_cpp_mc.bin"
+          $out = "test_cpp_mc.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-mc -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -104,7 +104,7 @@ jobs:
       # ── C Standard ────────────────────────────────────────────
       - name: Generate test data — C Standard
         run: |
-          $out = Join-Path $PWD "test_c_std.bin"
+          $out = "test_c_std.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e c-std -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -112,7 +112,7 @@ jobs:
       # ── C Crypto ──────────────────────────────────────────────
       - name: Generate test data — C Crypto
         run: |
-          $out = Join-Path $PWD "test_c_crypto.bin"
+          $out = "test_c_crypto.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e c-crypto -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -120,7 +120,7 @@ jobs:
       # ── C MonteCarlo ──────────────────────────────────────────
       - name: Generate test data — C MonteCarlo
         run: |
-          $out = Join-Path $PWD "test_c_mc.bin"
+          $out = "test_c_mc.bin"
           & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e c-mc -o $out
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"

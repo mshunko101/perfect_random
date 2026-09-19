@@ -515,7 +515,7 @@ namespace perfect_random
 
 		double apply_fantasy(double base) {
 			for (const auto& dim : dimensions) {
-				if (rng.generate() == 0) {
+				if (rng.generate() < 0.5) {
 					base += dim[0] * 0.01;
 				} else {
 					base += dim[1] * 0.01;

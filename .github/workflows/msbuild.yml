@@ -89,7 +89,7 @@ jobs:
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_cpp_std.bin"
-          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 10000000 -p 73.8 -f bin -e cpp-std -o $out
+          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 40000000 -p 73.8 -f bin -e cpp-std -o $out
           Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -99,7 +99,7 @@ jobs:
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_cpp_crypto.bin"
-          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 10000000 -p 73.8 -f bin -e cpp-crypto -o $out
+          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 40000000 -p 73.8 -f bin -e cpp-crypto -o $out
           Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -109,7 +109,7 @@ jobs:
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_cpp_mc.bin"
-          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 10000000 -p 73.8 -f bin -e cpp-mc -o $out
+          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 40000000 -p 73.8 -f bin -e cpp-mc -o $out
           Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -119,7 +119,7 @@ jobs:
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_c_std.bin"
-          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 10000000 -p 73.8 -f bin -e c-std -o $out
+          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 40000000 -p 73.8 -f bin -e c-std -o $out
           Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -129,7 +129,7 @@ jobs:
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_c_crypto.bin"
-          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 10000000 -p 73.8 -f bin -e c-crypto -o $out
+          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 40000000 -p 73.8 -f bin -e c-crypto -o $out
           Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
@@ -139,7 +139,7 @@ jobs:
         shell: pwsh
         run: |
           $out = Join-Path $PWD "test_c_mc.bin"
-          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 10000000 -p 73.8 -f bin -e c-mc -o $out
+          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 256 -n 40000000 -p 73.8 -f bin -e c-mc -o $out
           Start-Sleep -Seconds 1
           if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
           Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"

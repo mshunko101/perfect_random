@@ -80,12 +80,42 @@ jobs:
       # ═══════════════════════════════════════════════════════════
 
       # ── C++ Standard ──────────────────────────────────────────
+      # ── C++ Standard (отладка) ────────────────────────────────
       - name: Generate test data — C++ Standard
         run: |
           $out = Join-Path $PWD "test_cpp_std.bin"
-          & ${{ steps.find-gen.outputs.GEN_EXE }} -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-std -o $out
-          if (-not (Test-Path $out)) { Write-Error "Файл не создан: $out"; exit 1 }
-          Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
+          $genExe = "${{ steps.find-gen.outputs.GEN_EXE }}"
+          $genDir = Split-Path $genExe -Parent
+          Write-Host "PWD: $PWD"
+          Write-Host "Output: $out"
+          Write-Host "GenExe: $genExe"
+          Write-Host "GenDir: $genDir"
+          
+          & $genExe -a 0 -b 4294967295 -n 2000000 -p 73.8 -f bin -e cpp-std -o $out
+          Write-Host "Exit code: $LASTEXITCODE"
+          
+          Start-Sleep -Seconds 1
+          
+          Write-Host "=== Files in PWD (test_*) ==="
+          Get-ChildItem $PWD -Filter "test_*" -Recurse | ForEach-Object { Write-Host "  $($_.FullName) ($($_.Length) bytes)" }
+          
+          Write-Host "=== Files in GenDir (test_*) ==="
+          Get-ChildItem $genDir -Filter "test_*" -Recurse | ForEach-Object { Write-Host "  $($_.FullName) ($($_.Length) bytes)" }
+          
+          if (Test-Path $out) {
+            Write-Host "Generated: $out ($((Get-Item $out).Length) bytes)"
+          } else {
+            # Может, файл рядом с .exe?
+            $altPath = Join-Path $genDir "test_cpp_std.bin"
+            if (Test-Path $altPath) {
+              Write-Host "File found near .exe: $altPath — copying to $out"
+              Copy-Item $altPath $out -Force
+            } else {
+              Write-Error "Файл не создан ни в $out, ни в $altPath"
+              exit 1
+            }
+          }
+
 
       # ── C++ Crypto ────────────────────────────────────────────
       - name: Generate test data — C++ Crypto

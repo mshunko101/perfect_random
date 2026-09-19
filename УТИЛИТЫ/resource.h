@@ -60,6 +60,7 @@
 #define IDC_GROUP_COUNT                 2015
 #define IDC_OPJ                         2016
 #define IDC_ADD                         2017
+#define IDC_STATIC_REPORT               2018
 
 #define IDC_STATIC                      -1
 

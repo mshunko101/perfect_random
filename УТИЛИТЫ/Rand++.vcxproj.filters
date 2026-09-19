@@ -36,6 +36,9 @@
     <ClInclude Include="..\ВЕРСИИ\perfect_random_с.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="..\ВЕРСИИ\ZetaCalc.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Rand++.cpp">

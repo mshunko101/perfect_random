@@ -9,6 +9,6 @@
 
 // Добавьте сюда заголовочные файлы для предварительной компиляции
 #include "framework.h"
-
+#include <windows.h>
 
 #endif //PCH_H

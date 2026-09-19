@@ -50,9 +50,16 @@
 #define IDC_ENGINE_CPP                  2000
 #define IDC_ENGINE_C                    2001
 #define IDC_SPEED_LABEL                 2002
-#define IDC_ENGINE_LIST                 2010    // ComboBox — выбор движка
-#define IDC_TYPE_QWORD                  2011    // RadioButton — 64-bit
-#define IDC_TYPE_LONGDOUBLE             2012   // CheckBox — long double
+#define IDC_TYPE_LONGDOUBLE             2003
+#define IDC_AGE_GROUPS                  2004
+#define IDC_ENGINE_LIST                 2010
+#define IDC_TYPE_QWORD                  2011
+#define IDC_CALC                        2012
+#define IDC_FROM_AGE                    2013
+#define IDC_TO_AGE                      2014
+#define IDC_GROUP_COUNT                 2015
+#define IDC_OPJ                         2016
+#define IDC_ADD                         2017
 
 #define IDC_STATIC                      -1
 
